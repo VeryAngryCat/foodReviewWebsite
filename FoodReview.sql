@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 11:14 AM
+-- Generation Time: Mar 27, 2025 at 11:27 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -187,7 +187,10 @@ ALTER TABLE `Reviews`
 -- Indexes for table `UserPreference`
 --
 ALTER TABLE `UserPreference`
-  ADD PRIMARY KEY (`preferenceID`);
+  ADD PRIMARY KEY (`preferenceID`),
+  ADD KEY `csn_fk_key` (`cuisineID`),
+  ADD KEY `dt_fk_key` (`dietID`),
+  ADD KEY `usr1_fk_key` (`userID`);
 
 --
 -- Indexes for table `Users`
@@ -251,6 +254,14 @@ ALTER TABLE `Users`
 ALTER TABLE `Reviews`
   ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`),
   ADD CONSTRAINT `usr_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+
+--
+-- Constraints for table `UserPreference`
+--
+ALTER TABLE `UserPreference`
+  ADD CONSTRAINT `csn_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`),
+  ADD CONSTRAINT `dt_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`),
+  ADD CONSTRAINT `usr1_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
