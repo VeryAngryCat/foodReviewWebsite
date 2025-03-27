@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 11:35 AM
+-- Generation Time: Mar 27, 2025 at 01:05 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -143,6 +143,33 @@ CREATE TABLE `Users` (
   `email` varchar(35) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 --
+-- Dumping data for table `Users`
+--
+
+INSERT INTO `Users` (`userID`, `firstName`, `lastName`, `email`)
+VALUES (1, 'Alan', 'Poe', 'aPope@holicorp.com'),
+  (2, 'Paul', 'Brook', 'pBrook10@company.com'),
+  (3, 'Sally', 'Tims', 'sTim1980@gmail.com'),
+  (4, 'Ron', 'White', 'ronny96@me.com'),
+  (5, 'Gina', 'Lopez', 'lPezto3459@company.com'),
+  (6, 'Donald', 'Morris', 'dMorris1990@gmail.com'),
+  (7, 'Olaf', 'Snow', 'letItSnow@gmail.com'),
+  (8, 'Tony', 'Stark', 'ironMan250@starkcorp.com'),
+  (9, 'Newt', 'Pearson', 'someone3ls3@company.com'),
+  (10, 'Remy', 'Cooks', 'remyRat55@company.com'),
+  (11, 'Steve', 'Bobs', 'sBobs4ever30@gmail.com'),
+  (12, 'Liam', 'King', 'liKing217@somecorp.com'),
+  (
+    13,
+    'Volk',
+    'Swagen',
+    'cars4Cheap3r@insurcorp.com'
+  ),
+  (14, 'Andrea', 'LLowene', 'aLL23968@reple.com'),
+  (15, 'Gary', 'Rival', 'gRavel42@gmail.com'),
+  (16, 'Zach', 'Wood', 'zwood2003@company.com'),
+  (17, 'Mac', 'Bigs', 'bigMacs11@corp.com');
+--
 -- Indexes for dumped tables
 --
 
@@ -163,10 +190,28 @@ ALTER TABLE `Dish`
 ADD PRIMARY KEY (`dishID`),
   ADD KEY `rest1_fk_key` (`restaurantID`);
 --
+-- Indexes for table `FavouriteDish`
+--
+ALTER TABLE `FavouriteDish`
+ADD KEY `usr2_fk_key` (`userID`),
+  ADD KEY `dsh_fk_key` (`dishID`);
+--
+-- Indexes for table `FavouriteRestaurant`
+--
+ALTER TABLE `FavouriteRestaurant`
+ADD KEY `usr3_fk_key` (`userID`),
+  ADD KEY `rest2_fk_key` (`restaurantID`);
+--
 -- Indexes for table `Restaurant`
 --
 ALTER TABLE `Restaurant`
 ADD PRIMARY KEY (`restaurantID`);
+--
+-- Indexes for table `RestaurantCuisine`
+--
+ALTER TABLE `RestaurantCuisine`
+ADD KEY `rest3_fk_key` (`restaurantID`),
+  ADD KEY `csn2_fk_key` (`cuisineID`);
 --
 -- Indexes for table `Reviews`
 --
@@ -225,7 +270,8 @@ MODIFY `preferenceID` int(11) NOT NULL AUTO_INCREMENT;
 -- AUTO_INCREMENT for table `Users`
 --
 ALTER TABLE `Users`
-MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT,
+  AUTO_INCREMENT = 18;
 --
 -- Constraints for dumped tables
 --
@@ -235,6 +281,24 @@ MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT;
 --
 ALTER TABLE `Dish`
 ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`);
+--
+-- Constraints for table `FavouriteDish`
+--
+ALTER TABLE `FavouriteDish`
+ADD CONSTRAINT `dsh_fk_key` FOREIGN KEY (`dishID`) REFERENCES `Dish` (`dishID`),
+  ADD CONSTRAINT `usr2_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+--
+-- Constraints for table `FavouriteRestaurant`
+--
+ALTER TABLE `FavouriteRestaurant`
+ADD CONSTRAINT `rest2_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`),
+  ADD CONSTRAINT `usr3_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+--
+-- Constraints for table `RestaurantCuisine`
+--
+ALTER TABLE `RestaurantCuisine`
+ADD CONSTRAINT `csn2_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`),
+  ADD CONSTRAINT `rest3_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`);
 --
 -- Constraints for table `Reviews`
 --
