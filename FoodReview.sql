@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 11:27 AM
+-- Generation Time: Mar 27, 2025 at 11:35 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -167,7 +167,8 @@ ALTER TABLE `DietaryPreference`
 -- Indexes for table `Dish`
 --
 ALTER TABLE `Dish`
-  ADD PRIMARY KEY (`dishID`);
+  ADD PRIMARY KEY (`dishID`),
+  ADD KEY `rest1_fk_key` (`restaurantID`);
 
 --
 -- Indexes for table `Restaurant`
@@ -247,6 +248,12 @@ ALTER TABLE `Users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `Dish`
+--
+ALTER TABLE `Dish`
+  ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`);
 
 --
 -- Constraints for table `Reviews`
