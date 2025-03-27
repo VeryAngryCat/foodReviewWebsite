@@ -23,19 +23,6 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 --
--- Deletes all tables if exist, affter project is finished delete them
---
-DROP TABLE IF EXISTS `Cuisine`;
-DROP TABLE IF EXISTS `DietaryPreference`;
-DROP TABLE IF EXISTS `Dish`;
-DROP TABLE IF EXISTS `FavouriteDish`;
-DROP TABLE IF EXISTS `FavouriteRestaurant`;
-DROP TABLE IF EXISTS `Restaurant`;
-DROP TABLE IF EXISTS `RestaurantCuisine`;
-DROP TABLE IF EXISTS `Reviews`;
-DROP TABLE IF EXISTS `UserPreference`;
-DROP TABLE IF EXISTS `Users`;
---
 -- Table structure for table `Cuisine`
 --
 
