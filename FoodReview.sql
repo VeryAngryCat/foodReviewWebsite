@@ -40,7 +40,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE `Cuisine` (
   `cuisineID` int(11) NOT NULL,
-  `name` varchar(30) DEFAULT NULL,
+  `name` varchar(30) NOT NULL,
   `description` varchar(75) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 -- --------------------------------------------------------
@@ -50,7 +50,7 @@ CREATE TABLE `Cuisine` (
 
 CREATE TABLE `DietaryPreference` (
   `dietID` int(11) NOT NULL,
-  `name` varchar(30) DEFAULT NULL,
+  `name` varchar(30) NOT NULL,
   `description` varchar(75) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 -- --------------------------------------------------------
@@ -61,10 +61,10 @@ CREATE TABLE `DietaryPreference` (
 CREATE TABLE `Dish` (
   `dishID` int(11) NOT NULL,
   `restaurantID` int(11) DEFAULT NULL,
-  `name` varchar(40) DEFAULT NULL,
+  `name` varchar(40) NOT NULL,
   `price` float DEFAULT NULL,
   `description` varchar(85) DEFAULT NULL,
-  `isAvailable` tinyint(1) DEFAULT NULL
+  `isAvailable` tinyint(1) DEFAULT 0
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 --
 -- Dumping data for table `Dish`
@@ -472,7 +472,7 @@ CREATE TABLE `FavouriteRestaurant` (
 
 CREATE TABLE `Restaurant` (
   `restaurantID` int(11) NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
   `location` varchar(100) DEFAULT NULL,
   `operationStatus` varchar(40) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
@@ -632,9 +632,9 @@ CREATE TABLE `Reviews` (
   `reviewID` int(11) NOT NULL,
   `userID` int(11) DEFAULT NULL,
   `restaurantID` int(11) DEFAULT NULL,
-  `rating` int(11) DEFAULT NULL,
-  `commentLeft` varchar(1000) DEFAULT NULL,
-  `datePosted` date DEFAULT NULL
+  `rating` int(11) NOT NULL,
+  `commentLeft` varchar(1000) NOT NULL,
+  `datePosted` date NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 -- --------------------------------------------------------
 --
@@ -654,11 +654,11 @@ CREATE TABLE `UserPreference` (
 
 CREATE TABLE `Users` (
   `userID` int(11) NOT NULL,
-  `firstName` varchar(25) DEFAULT NULL,
-  `lastName` varchar(35) DEFAULT NULL,
-  `email` varchar(35) DEFAULT NULL,
-  `username` varchar(20) DEFAULT NULL,
-  `userPassword` varchar(20) DEFAULT NULL
+  `firstName` varchar(25) NOT NULL,
+  `lastName` varchar(35) NOT NULL,
+  `email` varchar(35) NOT NULL,
+  `username` varchar(20) NOT NULL,
+  `userPassword` varchar(20) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 --
 -- Dumping data for table `Users`
@@ -921,38 +921,42 @@ MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT,
 -- Constraints for table `Dish`
 --
 ALTER TABLE `Dish`
-ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`);
+ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `FavouriteDish`
 --
 ALTER TABLE `FavouriteDish`
-ADD CONSTRAINT `dsh_fk_key` FOREIGN KEY (`dishID`) REFERENCES `Dish` (`dishID`),
-  ADD CONSTRAINT `usr2_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+ADD CONSTRAINT `dsh_fk_key` FOREIGN KEY (`dishID`) REFERENCES `Dish` (`dishID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr2_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `FavouriteRestaurant`
 --
 ALTER TABLE `FavouriteRestaurant`
-ADD CONSTRAINT `rest2_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`),
-  ADD CONSTRAINT `usr3_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+ADD CONSTRAINT `rest2_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr3_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `RestaurantCuisine`
 --
 ALTER TABLE `RestaurantCuisine`
-ADD CONSTRAINT `csn2_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`),
-  ADD CONSTRAINT `rest3_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`);
+ADD CONSTRAINT `csn2_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rest3_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `Reviews`
 --
 ALTER TABLE `Reviews`
-ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`),
-  ADD CONSTRAINT `usr_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE
+SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE
+SET NULL ON UPDATE CASCADE;
 --
 -- Constraints for table `UserPreference`
 --
 ALTER TABLE `UserPreference`
-ADD CONSTRAINT `csn_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`),
-  ADD CONSTRAINT `dt_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`),
-  ADD CONSTRAINT `usr1_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`);
+ADD CONSTRAINT `csn_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE
+SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `dt_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`) ON DELETE
+SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr1_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;
