@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 $servername = "localhost";
 $username = "root";
 $password = ""; // Leave blank if no password is set
-$database = "your_database_name"; // Replace with your actual database name
+$database = "FoodReview"; // Replace with your actual database name
 
 // Create connection
 $conn = mysqli_connect($servername, $username, $password, $database);
