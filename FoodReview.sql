@@ -20,7 +20,18 @@ SET time_zone = "+00:00";
 --
 -- Database: `FoodReview`
 --
-
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Cuisine;
+DROP TABLE IF EXISTS DietaryPreference;
+DROP TABLE IF EXISTS Dish;
+DROP TABLE IF EXISTS FavouriteDish;
+DROP TABLE IF EXISTS FavouriteRestaurant;
+DROP TABLE IF EXISTS Restaurant;
+DROP TABLE IF EXISTS RestaurantCuisine;
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS UserPreference;
+DROP TABLE IF EXISTS Users;
+SET FOREIGN_KEY_CHECKS = 1;
 -- --------------------------------------------------------
 --
 -- Table structure for table `Cuisine`
