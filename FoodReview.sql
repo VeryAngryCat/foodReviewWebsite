@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2025 at 06:40 AM
+-- Generation Time: Apr 02, 2025 at 06:57 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -20,7 +20,18 @@ SET time_zone = "+00:00";
 --
 -- Database: `FoodReview`
 --
-
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Cuisine;
+DROP TABLE IF EXISTS DietaryPreference;
+DROP TABLE IF EXISTS Dish;
+DROP TABLE IF EXISTS FavouriteDish;
+DROP TABLE IF EXISTS FavouriteRestaurant;
+DROP TABLE IF EXISTS Restaurant;
+DROP TABLE IF EXISTS RestaurantCuisine;
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS UserPreference;
+DROP TABLE IF EXISTS Users;
+SET FOREIGN_KEY_CHECKS = 1;
 -- --------------------------------------------------------
 --
 -- Table structure for table `Cuisine`
@@ -70,6 +81,21 @@ VALUES (
     7,
     'Japanese',
     'The traditional cuisine of Japan (Japanese: washoku) is based on rice with miso soup and other dishes with an emphasis on seasonal ingredients.'
+  ),
+  (
+    9,
+    'Italian',
+    'A Mediterranean cuisine consisting of the ingredients, recipes, and cooking techniques developed in Italy since Roman times'
+  ),
+  (
+    10,
+    'Thai',
+    'Known for its amazing balance of sweet, sour, bitter, and salty flavours often finished with aromatic herbs'
+  ),
+  (
+    11,
+    'Fusion',
+    'A cuisine that combines elements of different culinary traditions that originate from different countries, regions, or cultures.'
   );
 -- --------------------------------------------------------
 --
@@ -682,6 +708,36 @@ CREATE TABLE `RestaurantCuisine` (
   `restaurantID` int(11) DEFAULT NULL,
   `cuisineID` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `RestaurantCuisine`
+--
+
+INSERT INTO `RestaurantCuisine` (`restaurantID`, `cuisineID`)
+VALUES (4, 2),
+  (16, 6),
+  (5, 1),
+  (5, 2),
+  (23, 4),
+  (2, 9),
+  (3, 9),
+  (3, 3),
+  (6, 4),
+  (13, 7),
+  (12, 7),
+  (12, 2),
+  (20, 2),
+  (1, 5),
+  (15, 10),
+  (21, 1),
+  (10, 5),
+  (11, 5),
+  (17, 6),
+  (2, 9),
+  (8, 3),
+  (7, 3),
+  (14, 10),
+  (9, 3),
+  (22, 11);
 -- --------------------------------------------------------
 --
 -- Table structure for table `Reviews`
@@ -1266,7 +1322,7 @@ ADD PRIMARY KEY (`userID`);
 --
 ALTER TABLE `Cuisine`
 MODIFY `cuisineID` int(11) NOT NULL AUTO_INCREMENT,
-  AUTO_INCREMENT = 9;
+  AUTO_INCREMENT = 12;
 --
 -- AUTO_INCREMENT for table `DietaryPreference`
 --
