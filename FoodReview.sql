@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2025 at 06:57 AM
+-- Generation Time: Apr 02, 2025 at 07:50 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -541,6 +541,24 @@ CREATE TABLE `FavouriteDish` (
   `userID` int(11) DEFAULT NULL,
   `dishID` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `FavouriteDish`
+--
+
+INSERT INTO `FavouriteDish` (`userID`, `dishID`)
+VALUES (5, 1),
+  (5, 20),
+  (5, 27),
+  (17, 17),
+  (11, 30),
+  (10, 29),
+  (2, 29),
+  (13, 31),
+  (17, 2),
+  (4, 38),
+  (7, 4),
+  (3, 32),
+  (14, 6);
 -- --------------------------------------------------------
 --
 -- Table structure for table `FavouriteRestaurant`
@@ -550,6 +568,23 @@ CREATE TABLE `FavouriteRestaurant` (
   `userID` int(11) DEFAULT NULL,
   `restaurantID` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `FavouriteRestaurant`
+--
+
+INSERT INTO `FavouriteRestaurant` (`userID`, `restaurantID`)
+VALUES (1, 7),
+  (14, 22),
+  (6, 4),
+  (15, 17),
+  (5, 6),
+  (5, 5),
+  (12, 17),
+  (17, 1),
+  (11, 18),
+  (13, 1),
+  (16, 9),
+  (4, 22);
 -- --------------------------------------------------------
 --
 -- Table structure for table `Restaurant`
@@ -1080,17 +1115,6 @@ VALUES (
   );
 -- --------------------------------------------------------
 --
--- Table structure for table `UserPreference`
---
-
-CREATE TABLE `UserPreference` (
-  `preferenceID` int(11) NOT NULL,
-  `userID` int(11) DEFAULT NULL,
-  `dietID` int(11) DEFAULT NULL,
-  `cuisineID` int(11) DEFAULT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
--- --------------------------------------------------------
---
 -- Table structure for table `Users`
 --
 
@@ -1301,14 +1325,6 @@ ADD PRIMARY KEY (`reviewID`),
   ADD KEY `usr_fk_key` (`userID`),
   ADD KEY `rest_fk_key` (`restaurantID`);
 --
--- Indexes for table `UserPreference`
---
-ALTER TABLE `UserPreference`
-ADD PRIMARY KEY (`preferenceID`),
-  ADD KEY `csn_fk_key` (`cuisineID`),
-  ADD KEY `dt_fk_key` (`dietID`),
-  ADD KEY `usr1_fk_key` (`userID`);
---
 -- Indexes for table `Users`
 --
 ALTER TABLE `Users`
@@ -1347,11 +1363,6 @@ MODIFY `restaurantID` int(11) NOT NULL AUTO_INCREMENT,
 ALTER TABLE `Reviews`
 MODIFY `reviewID` int(11) NOT NULL AUTO_INCREMENT,
   AUTO_INCREMENT = 43;
---
--- AUTO_INCREMENT for table `UserPreference`
---
-ALTER TABLE `UserPreference`
-MODIFY `preferenceID` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `Users`
 --
@@ -1393,15 +1404,6 @@ ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant
 SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `usr_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE
 SET NULL ON UPDATE CASCADE;
---
--- Constraints for table `UserPreference`
---
-ALTER TABLE `UserPreference`
-ADD CONSTRAINT `csn_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE
-SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `dt_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`) ON DELETE
-SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `usr1_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;
