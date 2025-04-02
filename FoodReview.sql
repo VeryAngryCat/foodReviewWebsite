@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 31, 2025 at 08:13 PM
+-- Generation Time: Apr 02, 2025 at 06:40 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -20,18 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `FoodReview`
 --
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS Cuisine;
-DROP TABLE IF EXISTS DietaryPreference;
-DROP TABLE IF EXISTS Dish;
-DROP TABLE IF EXISTS FavouriteDish;
-DROP TABLE IF EXISTS FavouriteRestaurant;
-DROP TABLE IF EXISTS Restaurant;
-DROP TABLE IF EXISTS RestaurantCuisine;
-DROP TABLE IF EXISTS Reviews;
-DROP TABLE IF EXISTS UserPreference;
-DROP TABLE IF EXISTS Users;
-SET FOREIGN_KEY_CHECKS = 1;
+
 -- --------------------------------------------------------
 --
 -- Table structure for table `Cuisine`
@@ -709,14 +698,15 @@ CREATE TABLE `Reviews` (
 --
 -- Dumping data for table `Reviews`
 --
+
 INSERT INTO `Reviews` (
-`reviewID`,
-`userID`,
-`restaurantID`,
-`rating`,
-`commentLeft`,
-`datePosted`
-)
+    `reviewID`,
+    `userID`,
+    `restaurantID`,
+    `rating`,
+    `commentLeft`,
+    `datePosted`
+  )
 VALUES (
     1,
     1,
@@ -951,6 +941,86 @@ VALUES (
     2,
     'I’m not sure who’s giving this place good ratings since their food was undercooked and very underwhelming service',
     '2020-08-02'
+  ),
+  (
+    33,
+    8,
+    20,
+    5,
+    'Absolutely phenomenal! The food was bursting with flavor, the ambiance was perfect, and the service was impeccable. Will be coming back for sure!',
+    '2021-08-30'
+  ),
+  (
+    34,
+    5,
+    11,
+    4,
+    'The perfect blend of great food, fast service, and a welcoming atmosphere. 10/10!',
+    '2019-10-10'
+  ),
+  (
+    35,
+    12,
+    14,
+    4,
+    'Really enjoyed my meal! The only downside was the slightly high price, but the quality made up for it.',
+    '2009-12-01'
+  ),
+  (
+    36,
+    16,
+    17,
+    3,
+    'Nice place, but nothing special. I wouldn’t go out of my way to eat here again.',
+    '2010-04-30'
+  ),
+  (
+    37,
+    4,
+    12,
+    2,
+    'Not what I expected. The pictures online looked way better than what we got.',
+    '2014-01-31'
+  ),
+  (
+    38,
+    7,
+    11,
+    5,
+    'Loved everything about this place! Cozy atmosphere, friendly service, and the best steak I’ve ever had. The portions were generous, and every dish was packed with flavour. The homemade bread they served before the meal was so good that I would have been happy eating just that. Can’t wait to come back!',
+    '2009-11-11'
+  ),
+  (
+    39,
+    6,
+    7,
+    1,
+    'Walked in excited, walked out disappointed. Everything tasted like it was microwaved, and the portions were laughably small. Total waste of money.',
+    '2013-06-18'
+  ),
+  (
+    40,
+    11,
+    23,
+    1,
+    'Found a hair in my food, and the manager didn’t even apologise. Instead, they just offered to replace the dish, which I had already lost my appetite for. Absolutely disgusting.',
+    '2022-09-11'
+  ),
+  (
+    41,
+    11,
+    18,
+    5,
+    'Absolutely incredible! Mama’s Tasty Meatballs serves the best homemade spaghetti and meatballs I’ve ever had. The sauce is rich, slow-cooked to perfection, and packed with flavour, while the meatballs are tender and full of herbs and spices. The pasta itself tastes fresh, like it was made from scratch that morning. The atmosphere is warm and inviting, just like an Italian grandma’s kitchen. I could eat here every day and never get tired of it!',
+    '2024-02-23'
+  ),
+  (
+    42,
+    10,
+    18,
+    5,
+    'The meatballs are hand-rolled, the sauce is simmered for hours, and the homemade spaghetti is the perfect texture. Every bite tastes like love and tradition. The service is friendly and fast, and the atmosphere is cozy with that classic Italian family-style charm. If you haven’t tried this place yet, do yourself a favor and go—your taste buds will thank you!',
+    '2025-03-20'
   );
 -- --------------------------------------------------------
 --
@@ -1220,7 +1290,7 @@ MODIFY `restaurantID` int(11) NOT NULL AUTO_INCREMENT,
 --
 ALTER TABLE `Reviews`
 MODIFY `reviewID` int(11) NOT NULL AUTO_INCREMENT,
-  AUTO_INCREMENT = 33;
+  AUTO_INCREMENT = 43;
 --
 -- AUTO_INCREMENT for table `UserPreference`
 --
