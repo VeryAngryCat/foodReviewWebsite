@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2025 at 07:50 AM
+-- Generation Time: Apr 02, 2025 at 08:07 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -20,18 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `FoodReview`
 --
-SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS Cuisine;
-DROP TABLE IF EXISTS DietaryPreference;
-DROP TABLE IF EXISTS Dish;
-DROP TABLE IF EXISTS FavouriteDish;
-DROP TABLE IF EXISTS FavouriteRestaurant;
-DROP TABLE IF EXISTS Restaurant;
-DROP TABLE IF EXISTS RestaurantCuisine;
-DROP TABLE IF EXISTS Reviews;
-DROP TABLE IF EXISTS UserPreference;
-DROP TABLE IF EXISTS Users;
-SET FOREIGN_KEY_CHECKS = 1;
+
 -- --------------------------------------------------------
 --
 -- Table structure for table `Cuisine`
@@ -503,7 +492,7 @@ VALUES (
   (
     44,
     21,
-    'Sliced Lamb Hunan Styyle',
+    'Sliced Lamb Hunan Style',
     7,
     'Spiced with native pepper, green chilli and oyster sauce',
     1
@@ -532,6 +521,52 @@ VALUES (
     'Shish Kebab from lamb',
     1
   );
+-- --------------------------------------------------------
+--
+-- Table structure for table `FavouriteCuisine`
+--
+
+CREATE TABLE `FavouriteCuisine` (
+  `userID` int(11) NOT NULL,
+  `cuisineID` int(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `FavouriteCuisine`
+--
+
+INSERT INTO `FavouriteCuisine` (`userID`, `cuisineID`)
+VALUES (6, 3),
+  (5, 3),
+  (5, 4),
+  (11, 11),
+  (13, 5),
+  (3, 1),
+  (15, 9),
+  (16, 6),
+  (10, 6),
+  (1, 5),
+  (2, 1),
+  (2, 10);
+-- --------------------------------------------------------
+--
+-- Table structure for table `FavouriteDiet`
+--
+
+CREATE TABLE `FavouriteDiet` (
+  `userID` int(11) NOT NULL,
+  `dietID` int(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `FavouriteDiet`
+--
+
+INSERT INTO `FavouriteDiet` (`userID`, `dietID`)
+VALUES (14, 4),
+  (9, 2),
+  (8, 5),
+  (14, 1),
+  (12, 6),
+  (6, 6);
 -- --------------------------------------------------------
 --
 -- Table structure for table `FavouriteDish`
@@ -1295,6 +1330,18 @@ ALTER TABLE `Dish`
 ADD PRIMARY KEY (`dishID`),
   ADD KEY `rest1_fk_key` (`restaurantID`);
 --
+-- Indexes for table `FavouriteCuisine`
+--
+ALTER TABLE `FavouriteCuisine`
+ADD KEY `csn3_fk_key` (`cuisineID`),
+  ADD KEY `usr5_fk_key` (`userID`);
+--
+-- Indexes for table `FavouriteDiet`
+--
+ALTER TABLE `FavouriteDiet`
+ADD KEY `usr4_fk_key` (`userID`),
+  ADD KEY `dt_fk_key` (`dietID`);
+--
 -- Indexes for table `FavouriteDish`
 --
 ALTER TABLE `FavouriteDish`
@@ -1378,6 +1425,18 @@ MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT,
 --
 ALTER TABLE `Dish`
 ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Constraints for table `FavouriteCuisine`
+--
+ALTER TABLE `FavouriteCuisine`
+ADD CONSTRAINT `csn3_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr5_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Constraints for table `FavouriteDiet`
+--
+ALTER TABLE `FavouriteDiet`
+ADD CONSTRAINT `dt_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `usr4_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `FavouriteDish`
 --
