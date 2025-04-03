@@ -45,13 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($count > 0) {
             $error_message = "Username or email already exists.";
         } else {
-            // Validate password (must contain @)
-            if (strpos($password, '@') === false) {
-                $error_message = "Password must contain '@'.";
+            // Validate email (must contain @)
+            if (strpos($email, '@') === false) {
+                $error_message = "Email must contain '@'.";
             } else {
-                // Validate username (must contain at least one uppercase letter, one lowercase letter, and one number)
-                if (!preg_match('/[A-Z]/', $username) || !preg_match('/[a-z]/', $username) || !preg_match('/[0-9]/', $username)) {
-                    $error_message = "Username must contain at least one uppercase letter, one lowercase letter, and one number.";
+                // Validate password (must contain at least one uppercase letter, one lowercase letter, and one number)
+                if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+                    $error_message = "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
                 } else {
                     // Hash the password
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
