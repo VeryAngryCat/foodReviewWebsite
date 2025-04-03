@@ -16,6 +16,10 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+// Initialize error and success messages
+$error_message = '';
+$success_message = '';
+
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get user input
@@ -27,54 +31,150 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if form inputs are set (avoiding null issues)
     if (empty($firstName) || empty($lastName) || empty($username) || empty($email) || empty($password)) {
-        echo "All fields are required!";
-        exit;
-    }
-
-    // Validate if username or email already exists
-    $sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ss", $username, $email);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $count);
-    mysqli_stmt_fetch($stmt);
-    mysqli_stmt_close($stmt);
-
-    if ($count > 0) {
-        echo "Username or email already exists.";
+        $error_message = "All fields are required!";
     } else {
-        // Validate password (must contain @)
-        if (strpos($password, '@') === false) {
-            echo "Password must contain '@'.";
-            exit;
-        }
-
-        // Validate username (must contain at least one uppercase letter, one lowercase letter, and one number)
-        if (!preg_match('/[A-Z]/', $username) || !preg_match('/[a-z]/', $username) || !preg_match('/[0-9]/', $username)) {
-            echo "Username must contain at least one uppercase letter, one lowercase letter, and one number.";
-            exit;
-        }
-
-        // Hash the password
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-        // SQL to insert user
-        $sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
-                VALUES (?, ?, ?, ?, ?)";
+        // Validate if username or email already exists
+        $sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "sssss", $firstName, $lastName, $email, $username, $hashed_password);
-        $result = mysqli_stmt_execute($stmt);
-
-        if ($result) {
-            echo "User registered successfully!";
-        } else {
-            echo "Error: " . mysqli_error($conn);
-        }
-
+        mysqli_stmt_bind_param($stmt, "ss", $username, $email);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $count);
+        mysqli_stmt_fetch($stmt);
         mysqli_stmt_close($stmt);
+
+        if ($count > 0) {
+            $error_message = "Username or email already exists.";
+        } else {
+            // Validate password (must contain @)
+            if (strpos($password, '@') === false) {
+                $error_message = "Password must contain '@'.";
+            } else {
+                // Validate username (must contain at least one uppercase letter, one lowercase letter, and one number)
+                if (!preg_match('/[A-Z]/', $username) || !preg_match('/[a-z]/', $username) || !preg_match('/[0-9]/', $username)) {
+                    $error_message = "Username must contain at least one uppercase letter, one lowercase letter, and one number.";
+                } else {
+                    // Hash the password
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                    // SQL to insert user
+                    $sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
+                            VALUES (?, ?, ?, ?, ?)";
+                    $stmt = mysqli_prepare($conn, $sql);
+                    mysqli_stmt_bind_param($stmt, "sssss", $firstName, $lastName, $email, $username, $hashed_password);
+                    $result = mysqli_stmt_execute($stmt);
+
+                    if ($result) {
+                        $success_message = "User registered successfully!";
+                    } else {
+                        $error_message = "Error: " . mysqli_error($conn);
+                    }
+
+                    mysqli_stmt_close($stmt);
+                }
+            }
+        }
     }
 }
 
 // Close the database connection
 mysqli_close($conn);
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>User Registration</h2>
+
+        <!-- Form to capture user input -->
+        <form action="register.php" method="POST">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" required>
+
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" required>
+
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <input type="submit" value="Register">
+        </form>
+
+        <!-- Display error or success messages -->
+        <?php
+            if ($error_message) {
+                echo "<p class='error'>$error_message</p>";
+            }
+            if ($success_message) {
+                echo "<p class='success'>$success_message</p>";
+            }
+        ?>
+    </div>
+
+</body>
+</html>
