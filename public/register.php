@@ -1,17 +1,20 @@
 <?php
 
-// Database connection (make sure it's included in your file)
-$host = 'localhost'; 
-$dbname = 'your_database_name';  
-$username = 'your_username';  
-$password = 'your_password';  
+// Database connection
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-try {
-    // Establish the PDO connection
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+$servername = "localhost";
+$username = "root";
+$password = ""; // Leave blank if no password is set
+$database = "FoodReview"; // Replace with your actual database name
+
+// Create connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 // Get user input
@@ -21,55 +24,49 @@ $username = $_POST['username'];
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-// Hash the password
-$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+// Validate if username or email already exists
+$sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "ss", $username, $email);
+mysqli_stmt_execute($stmt);
+mysqli_stmt_bind_result($stmt, $count);
+mysqli_stmt_fetch($stmt);
+mysqli_stmt_close($stmt);
 
-// SQL to insert user
-$sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
-        VALUES (:firstName, :lastName, :email, :username, :userPassword)";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([
-    'firstName' => $firstName,
-    'lastName' => $lastName,
-    'email' => $email,
-    'username' => $username,
-    'userPassword' => $hashed_password
-]);
-
-echo "User registered successfully!";
-?>
-
-<?php
-$sql = "SELECT COUNT(*) AS count 
-        FROM Users 
-        WHERE username = :username OR email = :email";
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['username' => $username, 'email' => $email]);
-$result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if ($result['count'] > 0) {
+if ($count > 0) {
     echo "Username or email already exists.";
 } else {
-    echo "Username and email are available.";
+    // Validate password (must contain @)
+    if (strpos($password, '@') === false) {
+        echo "Password must contain '@'.";
+        exit;
+    }
+
+    // Validate username (must contain at least one uppercase letter, one lowercase letter, and one number)
+    if (!preg_match('/[A-Z]/', $username) || !preg_match('/[a-z]/', $username) || !preg_match('/[0-9]/', $username)) {
+        echo "Username must contain at least one uppercase letter, one lowercase letter, and one number.";
+        exit;
+    }
+
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // SQL to insert user
+    $sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
+            VALUES (?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "sssss", $firstName, $lastName, $email, $username, $hashed_password);
+    $result = mysqli_stmt_execute($stmt);
+
+    if ($result) {
+        echo "User registered successfully!";
+    } else {
+        echo "Error: " . mysqli_error($conn);
+    }
+
+    mysqli_stmt_close($stmt);
 }
+
+// Close the database connection
+mysqli_close($conn);
 ?>
-
-
-<?php
-if (strpos($password, '@') !== false) {
-    echo "Password contains '@'.";
-} else {
-    echo "Password must contain '@'.";
-}
-?>
-
-
-<?php
-if (preg_match('/[A-Z]/', $username) && preg_match('/[a-z]/', $username) && preg_match('/[0-9]/', $username)) {
-    echo "Username is valid.";
-} else {
-    echo "Username must contain at least one uppercase letter, one lowercase letter, and one number.";
-}
-?>
-
-
