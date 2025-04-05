@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 echo "PHP is working!";
 
 // Include database connection
-include('db_connection.php');
+include('../includes/dbConn.php');
 
 // Fetch all cuisines and dietary preferences for filter
 $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");
