@@ -4,9 +4,7 @@ ini_set('display_errors', 1); // Display errors on the page
 
 session_start();
 
-// Mocking a session for testing purposes (replace with real session logic later)
-$_SESSION['userID'] = 1; // Simulating a logged-in user with userID = 1
-
+/
 // Include the database connection file (adjust path if necessary)
 include '../includes/dbConn.php'; // Adjust the path as needed
 
@@ -19,7 +17,7 @@ if (!isset($_SESSION['userID'])) {
 $userID = $_SESSION['userID'];
 
 // Get user info
-$stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM user WHERE userID = ?");
+$stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
 $stmt->bind_param("i", $userID);
 $stmt->execute();
 $stmt->bind_result($firstName, $lastName, $email, $username);
@@ -33,7 +31,7 @@ if (!$firstName) {
 }
 
 // Get number of favorite restaurants
-$favSql = "SELECT COUNT(*) FROM favorites WHERE userID = ?";
+$favSql = "SELECT COUNT(*) FROM FavouriteRestaurant WHERE userID = ?";
 $favStmt = $conn->prepare($favSql);
 $favStmt->bind_param("i", $userID);
 $favStmt->execute();
@@ -50,8 +48,9 @@ if ($favoriteCount === NULL) {
 // Get user reviews
 $reviewSql = "
     SELECT r.commentLeft, r.rating, r.datePosted, res.name 
-    FROM review r 
-    JOIN restaurants res ON r.restaurantID = res.restaurantID 
+    FROM Reviews r 
+    JOIN FavouriteRestaurant fr ON r.restaurantID = fr.restaurantID 
+    JOIN Restaurant res ON fr.restaurantID = res.restaurantID 
     WHERE r.userID = ?";
 $reviewStmt = $conn->prepare($reviewSql);
 $reviewStmt->bind_param("i", $userID);
@@ -162,7 +161,7 @@ if (!$reviewResult) {
 
         <div style="text-align: center;">
             <a href="browse.php" class="back-btn">← Back to Browse</a>
-            <a href="logout.php" class="logout-btn">Logout</a>
+            <a href="index.php" class="logout-btn">Logout</a>
         </div>
     </div>
 
