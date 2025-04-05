@@ -9,68 +9,39 @@ $restaurantID = 1;
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
 } else {
-    // Redirect if no restaurant ID is provided
     header("Location: browse.php");
     exit();
 }
 
-// Check if the user is logged in
 if (!isset($_SESSION['userID'])) {
-    // Redirect to login page if not logged in
     header("Location: login.php");
     exit();
 }
 
-$userID = $_SESSION['userID']; // Get logged-in user ID
+$userID = $_SESSION['userID'];
 
-// Fetch restaurant details from the database
 $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
-$stmt = $conn->prepare($sql);
-
-// Bind the restaurantID to the prepared statement
-$stmt->bind_param("i", $restaurantID); // "i" stands for integer
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $restaurantID);
 $stmt->execute();
-
-// Get the result
 $result = $stmt->get_result();
 $restaurant = $result->fetch_assoc();
 
-
 if (!$restaurant) {
-    // If restaurant not found, redirect to browse page
     header("Location: browse.php");
     exit();
 }
+// Get average rating from Review table
+$ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?";
+$ratingStmt = $conn->prepare($ratingQuery);
+$ratingStmt->bind_param("i", $restaurantID);
+$ratingStmt->execute();
+$ratingResult = $ratingStmt->get_result();
+$ratingData = $ratingResult->fetch_assoc();
 
-// Get the restaurant ID (from the URL or request)
-$restaurantID = $_GET['restaurantID'];  // Ensure that you are passing the restaurantID correctly via URL
+$averageRating = $ratingData['average_rating'];
 
-// Check if the restaurant is already in user's favorites
-$favQuery = "SELECT * FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?";
-$favStmt = $conn->prepare($favQuery);
-
-// Bind parameters (i = integer for both userID and restaurantID)
-$favStmt->bind_param("ii", $userID, $restaurantID);
-
-// Execute the statement
-$favStmt->execute();
-
-// Get the result
-$favResult = $favStmt->get_result();
-
-// Check if the restaurant is in the user's favorites
-$isFavorite = $favResult->fetch_assoc();
-
-// Close the statement
-$favStmt->close();
-
-// If $isFavorite is not null, the restaurant is already in the favorites
-if ($isFavorite) {
-    echo "This restaurant is in your favorites!";
-} else {
-    echo "This restaurant is not in your favorites yet.";
-}
-
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -78,99 +49,109 @@ if ($isFavorite) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($restaurant['name']); ?> - Restaurant Details</title>
+    <title><?php echo htmlspecialchars($restaurant['name']); ?> - Details</title>
     <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color:rgb(153, 219, 215);
             color: #333;
         }
 
-        h1, h2 {
+        .header {
+            background-color: rgb(255, 225, 238);
+            color: black;
+            padding: 30px 20px;
             text-align: center;
-            color: #2d6a4f;
-            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 45px;
+            margin-bottom: 10px;
         }
 
         .container {
-            width: 80%;
-            margin: 0 auto;
-            background-color: #ffffff;
+            max-width: 800px;
+            margin: 40px auto;
+            background:rgb(255, 255, 255);
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 50px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
 
-        .restaurant-details {
+        .restaurant-info {
             text-align: center;
-            padding-bottom: 20px;
         }
 
-        .restaurant-details p {
+        .restaurant-info p {
             font-size: 18px;
-            line-height: 1.6;
-            margin: 10px 0;
+            margin: 12px 0;
         }
 
-        .restaurant-details .btn {
-            background-color: #2d6a4f;
-            color: #ffffff;
-            padding: 10px 20px;
-            margin: 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+        .highlight {
+            color:rgb #b03a5b ;
+            font-weight: bold;
         }
 
-        .restaurant-details .btn:hover {
-            background-color: #2a5c47;
-        }
-
-        .heart-button {
+        .rating {
             font-size: 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #2d6a4f;
-            transition: color 0.3s ease;
+            color:rgb(0, 0, 0);
+            margin: 15px 0;
         }
 
-        .heart-button:hover {
-            color: #1b5e20;
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
 
-        .heart-button:focus {
-            outline: none;
+        .btn {
+            background-color: #b03a5b;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: 0.3s;
         }
 
-        /* Styling for the navigation links and footer */
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            background-color: #2d6a4f;
-            color: #ffffff;
+        .btn:hover {
+            background-color: #457b9d;
         }
+
+        
     </style>
 </head>
 <body>
 
-<!-- Restaurant Details Section -->
-<h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
-<p><strong>Location:</strong> <?php echo htmlspecialchars($restaurant['location']); ?></p>
-<p><strong>Operation Status:</strong> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p>
+<div class="header">
+    <h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
+    
+</div>
 
-<!-- Average Rating Section (Optional, assuming it's available) -->
-<p><strong>Average Rating:</strong> <?php echo number_format($restaurant['average_rating'], 1); ?> ⭐</p>
+<div class="container">
+    <div class="restaurant-info">
+        <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p>
+        <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p>
+        <p><strong>Average Rating:</strong>
+            <?php 
+            echo $averageRating !== null 
+                ? number_format($averageRating, 1) . " ⭐" 
+                : "Not Rated Yet ⭐"; 
+            ?>
+        </p>
+    </div>
 
-<!-- Navigation buttons -->
-<a href="dishes.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Dishes</a>
-<a href="reviews.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Reviews</a>
+    <div class="btn-container">
+        <a href="dishes.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Dishes</a>
+        <a href="review.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Reviews</a>
+    </div>
+</div>
+
+
+
+</body>
+</html>
+
+<?php $conn->close(); ?>
