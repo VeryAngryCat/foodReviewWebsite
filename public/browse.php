@@ -3,8 +3,10 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
-require_once 'db_connect.php';
+echo "TEST 1: PHP is working";
+require_once '../db_connect.php'; // Adjust path as needed
+echo "TEST 2: Database connected";
+?>
 
 // Database Helper Functions
 function getRestaurantCuisines($pdo, $restaurantId) {
