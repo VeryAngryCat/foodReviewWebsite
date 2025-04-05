@@ -1,11 +1,25 @@
 <?php
+// Database connection
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "PHP is working!";
+$servername = "localhost";
+$username = "root";
+$password = ""; // Leave blank if no password is set
+$database = "FoodReview"; // Replace with your actual database name
 
+<<<<<<< HEAD
 // Include database connection
 include('../includes/dbConn.php');
+=======
+// Create connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+
+// Check connection
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+>>>>>>> 1e70168a9d5c620b9218cf34610ee009725b39cc
 
 // Fetch all cuisines and dietary preferences for filter
 $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");
