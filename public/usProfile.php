@@ -1,11 +1,16 @@
 <?php
+error_reporting(E_ALL); // Report all errors
+ini_set('display_errors', 1); // Display errors on the page
+
 session_start();
+
 include 'db.php';
 
-//if (!isset($_SESSION['userID'])) {
-   // header("Location: login.php");
-   // exit();
-//}
+// Check if the userID session is set
+if (!isset($_SESSION['userID'])) {
+    echo "Session variable 'userID' is not set.";
+    exit();
+}
 
 $userID = $_SESSION['userID'];
 
@@ -17,6 +22,12 @@ $stmt->bind_result($firstName, $lastName, $email, $username);
 $stmt->fetch();
 $stmt->close();
 
+// Check if the user data was fetched
+if (!$firstName) {
+    echo "No user data found for userID: $userID";
+    exit();
+}
+
 // Get number of favorite restaurants
 $favSql = "SELECT COUNT(*) FROM favorites WHERE userID = ?";
 $favStmt = $conn->prepare($favSql);
@@ -25,6 +36,12 @@ $favStmt->execute();
 $favStmt->bind_result($favoriteCount);
 $favStmt->fetch();
 $favStmt->close();
+
+// Check if the favorite count was fetched
+if ($favoriteCount === NULL) {
+    echo "Error fetching favorite restaurants count.";
+    exit();
+}
 
 // Get user reviews
 $reviewSql = "
@@ -36,6 +53,12 @@ $reviewStmt = $conn->prepare($reviewSql);
 $reviewStmt->bind_param("i", $userID);
 $reviewStmt->execute();
 $reviewResult = $reviewStmt->get_result();
+
+// Check if reviews were fetched
+if (!$reviewResult) {
+    echo "Error fetching reviews for userID: $userID";
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
