@@ -1,17 +1,25 @@
 <?php
 session_start();
 include('../includes/dbConn.php');
-
-// Hardcoding a test restaurant ID (e.g., 1 for testing purposes)
-$restaurantID = 1;
-
-// Get the restaurant ID from the URL
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
+    $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $restaurantID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $restaurant = $result->fetch_assoc();
+
+    if (!$restaurant) {
+        echo "Restaurant not found.";
+        exit;
+    }
 } else {
-    header("Location: browse.php");
+    echo "No restaurant ID provided.";
     exit();
 }
+
+
 
 if (!isset($_SESSION['userID'])) {
     header("Location: login.php");

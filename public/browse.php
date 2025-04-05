@@ -187,7 +187,7 @@ if (isset($_POST['search'])) {
     <div class="container">
         <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
             <div class="card">
-                <a href="restaurant.php?id=<?= $restaurant['restaurantID'] ?>">
+                <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>">
                     <h2><?= $restaurant['name'] ?></h2>
                     <p><strong>Location:</strong> <?= $restaurant['location'] ?></p>
                     <p><strong>Status:</strong> <?= $restaurant['operationStatus'] ?></p>

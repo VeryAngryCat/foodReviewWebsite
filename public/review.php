@@ -5,36 +5,55 @@ include('../includes/dbConn.php');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// ✅ Hardcoded restaurant ID for testing
-$restaurantID = 1;
+$restaurantID = $_GET['restaurantID'] ?? null;
 
-
-// Check if user is logged in
-if (!isset($_SESSION['userID'])) {
-    header("Location: login.php");
+if (!$restaurantID) {
+    echo "No restaurant selected.";
     exit();
 }
-$userID = $_SESSION['userID'];
 
-// Handle form submission
+// Get restaurant name
+$nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?";
+$stmt = $conn->prepare($nameQuery);
+$stmt->bind_param("i", $restaurantID);
+$stmt->execute();
+$stmt->bind_result($restaurantName);
+$stmt->fetch();
+$stmt->close();
+
+if (!$restaurantName) {
+    echo "Restaurant not found.";
+    exit();
+}
+
+// Get the restaurant ID from GET parameter
+if (!isset($_GET['restaurantID'])) {
+    echo "Restaurant ID not provided.";
+    exit();
+}
+$restaurantID = $_GET['restaurantID'];
+
+// Store logged-in userID if available
+$userID = $_SESSION['userID'] ?? null;
+
+// Handle form submission (only if user is logged in)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $rating = $_POST['rating'];
-    $comment = trim($_POST['comment']);
-    echo "Form Submitted!<br>";
-    echo "Rating: " . $_POST['rating'] . "<br>";
-    echo "Comment: " . $_POST['comment'] . "<br>";
-    
+    if ($userID) {
+        $rating = $_POST['rating'];
+        $comment = trim($_POST['comment']);
 
-    if ($rating && $comment) {
-        $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) VALUES (?, ?, ?, ?, CURDATE())";
-        $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param("iiis", $userID, $restaurantID, $rating, $comment);
-        $stmt->execute();
-        $stmt->close();
+        if ($rating && $comment) {
+            $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) VALUES (?, ?, ?, ?, CURDATE())";
+            $stmt = $conn->prepare($insertQuery);
+            $stmt->bind_param("iiis", $userID, $restaurantID, $rating, $comment);
+            $stmt->execute();
+            $stmt->close();
 
-        // Redirect to avoid form resubmission
-        header("Location: reviews.php");
-        exit();
+            header("Location: review.php?restaurantID=$restaurantID");
+            exit();
+        }
+    } else {
+        echo "You must be logged in to submit a review.";
     }
 }
 
@@ -130,10 +149,12 @@ $result = $stmt->get_result();
 </head>
 <body>
 <div class="container">
-    <h1>Reviews for Restaurant #<?php echo $restaurantID; ?></h1>
+    <h1>Reviews for <?php echo htmlspecialchars($restaurantName); ?></h1>
 
     <!-- Review Form -->
     <div class="review-form">
+        <form action="" method="POST">
+        <?php if ($userID): ?>
         <form action="" method="POST">
             <label for="rating">Rating:</label>
             <select name="rating" id="rating" required>
@@ -150,7 +171,9 @@ $result = $stmt->get_result();
 
             <input type="submit" value="Submit Review">
         </form>
-    </div>
+    <?php else: ?>
+        <p><strong><a href="login.php">Login</a></strong> to submit a review.</p>
+    <?php endif; ?>
 
     <hr>
 
