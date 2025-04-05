@@ -4,9 +4,13 @@ ini_set('display_errors', 1); // Display errors on the page
 
 session_start();
 
-include 'db.php';
+// Mocking a session for testing purposes (replace with real session logic later)
+$_SESSION['userID'] = 1; // Simulating a logged-in user with userID = 1
 
-// Check if the userID session is set
+// Include the database connection file (adjust path if necessary)
+include '../includes/dbConn.php'; // Adjust the path as needed
+
+// Check if the userID session is set (for testing, it will always be set)
 if (!isset($_SESSION['userID'])) {
     echo "Session variable 'userID' is not set.";
     exit();
