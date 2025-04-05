@@ -1,0 +1,213 @@
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Header Styles */
+.foodrev-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.foodrev-search-container {
+    display: flex;
+    width: 60%;
+    max-width: 600px;
+}
+
+.foodrev-search-input {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 1rem;
+}
+
+.foodrev-search-button {
+    padding: 0 1.25rem;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.foodrev-search-button:hover {
+    background-color: #ff5252;
+}
+
+.foodrev-profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4ecdc4;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.foodrev-profile-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Main Content Styles */
+.foodrev-main-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.foodrev-main-title {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+/* Filter Section Styles */
+.foodrev-filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.foodrev-filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.foodrev-filter-label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.foodrev-filter-select {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.foodrev-filter-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #4ecdc4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background-color 0.2s;
+}
+
+.foodrev-filter-button:hover {
+    background-color: #3dbeb5;
+}
+
+.foodrev-clear-button {
+    background-color: #ff6b6b;
+}
+
+.foodrev-clear-button:hover {
+    background-color: #ff5252;
+}
+
+/* Restaurant List Styles */
+.foodrev-restaurant-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.foodrev-restaurant-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.foodrev-restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.foodrev-restaurant-name {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+}
+
+.foodrev-restaurant-location {
+    margin: 0 0 0.5rem 0;
+    color: #7f8c8d;
+}
+
+.foodrev-restaurant-status {
+    margin: 0;
+    font-weight: 600;
+}
+
+.status-open {
+    color: #27ae60;
+}
+
+.status-temporarily-closed {
+    color: #f39c12;
+}
+
+.status-permanently-closed {
+    color: #e74c3c;
+}
+
+.foodrev-no-results {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 2rem;
+    color: #7f8c8d;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .foodrev-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .foodrev-search-container {
+        width: 100%;
+    }
+    
+    .foodrev-filter-section {
+        flex-direction: column;
+    }
+    
+    .foodrev-filter-group {
+        width: 100%;
+    }
+    
+    .foodrev-filter-button {
+        align-self: stretch;
+    }
+}
