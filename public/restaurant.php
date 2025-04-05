@@ -5,7 +5,6 @@ include('../includes/dbConn.php');
 // Hardcoding a test restaurant ID (e.g., 1 for testing purposes)
 $restaurantID = 1;
 
-
 // Get the restaurant ID from the URL
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
