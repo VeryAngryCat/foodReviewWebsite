@@ -28,7 +28,7 @@ function getRestaurantDiets($pdo, $restaurantId) {
 }
 
 // Rest of your PHP code (queries, etc.)...
-?>
+
 
 // Initialize variables
 $restaurants = [];
