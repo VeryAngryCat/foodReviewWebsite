@@ -4,6 +4,8 @@ ini_set('display_errors', 1); // Display errors on the page
 
 session_start();
 
+$_SESSION['userID'] = 1;
+
 /
 // Include the database connection file (adjust path if necessary)
 include '../includes/dbConn.php'; // Adjust the path as needed
