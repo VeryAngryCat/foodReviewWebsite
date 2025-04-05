@@ -21,7 +21,7 @@ if (!$conn) {
 }
 >>>>>>> 1e70168a9d5c620b9218cf34610ee009725b39cc
 
-// Fetch all cuisines and dietary preferences for filter
+// Fetch all cuisines and dietary preferences for filter (Even though it's not linked to restaurants in DB yet)
 $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");
 $dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference");
 
@@ -61,14 +61,14 @@ if (isset($_POST['search'])) {
         </a>
     </div>
 
-    <!-- Filter Bar -->
+    <!-- Filter Bar (No actual filtering functionality yet) -->
     <div class="filter-bar">
         <form method="GET" action="">
             <label for="cuisine">Cuisine:</label>
             <select name="cuisine" id="cuisine">
                 <option value="">All Cuisines</option>
                 <?php while ($cuisine = mysqli_fetch_assoc($cuisines)): ?>
-                    <option value="<?= $cuisine['id'] ?>"><?= $cuisine['name'] ?></option>
+                    <option value="<?= $cuisine['cuisineID'] ?>"><?= $cuisine['name'] ?></option>
                 <?php endwhile; ?>
             </select>
 
@@ -76,7 +76,7 @@ if (isset($_POST['search'])) {
             <select name="dietary" id="dietary">
                 <option value="">All Preferences</option>
                 <?php while ($diet = mysqli_fetch_assoc($dietaryPreferences)): ?>
-                    <option value="<?= $diet['id'] ?>"><?= $diet['name'] ?></option>
+                    <option value="<?= $diet['dietID'] ?>"><?= $diet['name'] ?></option>
                 <?php endwhile; ?>
             </select>
 
@@ -88,9 +88,10 @@ if (isset($_POST['search'])) {
     <div class="restaurant-list">
         <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
             <div class="restaurant-item">
-                <a href="restaurant.php?id=<?= $restaurant['id'] ?>">
+                <a href="restaurant.php?id=<?= $restaurant['restaurantID'] ?>">
                     <h3><?= $restaurant['name'] ?></h3>
-                    <p><?= $restaurant['description'] ?></p>
+                    <p><?= $restaurant['location'] ?></p>
+                    <p>Status: <?= $restaurant['operationStatus'] ?></p>
                 </a>
             </div>
         <?php endwhile; ?>
