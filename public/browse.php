@@ -2,52 +2,46 @@
 // Database connection
 include '../includes/dbConn.php';
 
-// Get all filter options
+// Fetch all filter options
 $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");
 $dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference");
 
-// Initialize variables
+// Initialize filter variables
 $searchTerm = isset($_POST['search']) ? $_POST['search'] : '';
 $selectedCuisine = isset($_GET['cuisine']) ? (int)$_GET['cuisine'] : 0;
 $selectedDiet = isset($_GET['dietary']) ? (int)$_GET['dietary'] : 0;
 
-// Build the base query
-$query = "SELECT DISTINCT r.* FROM Restaurant r";
-
-// Add JOIN if dietary filter is selected
-if ($selectedDiet > 0) {
-    $query .= " JOIN RestaurantDietary rd ON r.restaurantID = rd.restaurantID";
-}
-
-// Start WHERE conditions
+// Build the query
 $where = [];
+$join = '';
 
-// Add search condition
+// Search filter
 if (!empty($searchTerm)) {
     $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
 }
 
-// Add cuisine filter if selected
-if ($selectedCuisine > 0) {
+// Cuisine filter (with column check)
+$column_check = mysqli_query($conn, "SHOW COLUMNS FROM Restaurant LIKE 'cuisineID'");
+if (mysqli_num_rows($column_check) > 0 && $selectedCuisine > 0) {
     $where[] = "r.cuisineID = " . $selectedCuisine;
 }
 
-// Add dietary filter if selected
+// Dietary filter
 if ($selectedDiet > 0) {
     $where[] = "rd.dietID = " . $selectedDiet;
+    $join = "JOIN RestaurantDietary rd ON r.restaurantID = rd.restaurantID";
 }
 
-// Combine WHERE conditions
+// Build final query
+$query = "SELECT DISTINCT r.* FROM Restaurant r $join";
 if (!empty($where)) {
     $query .= " WHERE " . implode(' AND ', $where);
 }
 
-// Run the query
+// Execute query
 $restaurants = mysqli_query($conn, $query);
-
-// Check for query errors
 if (!$restaurants) {
-    die("Database error: " . mysqli_error($conn));
+    die("Query failed: " . mysqli_error($conn));
 }
 ?>
 
@@ -60,78 +54,89 @@ if (!$restaurants) {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color:rgb(89, 169, 255); /* Light blue background */
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
-        .search-bar {
-            text-align: center;
-            margin: 20px 0;
+        
+        .search-bar, .filter-bar {
+            background-color:rgb(253, 204, 211); /* Pink tabs */
             padding: 15px;
-            background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 15px auto;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .search-bar input {
-            padding: 10px;
-            width: 300px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .filter-bar {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .filter-bar select {
+        
+        input, select {
             padding: 8px;
-            margin: 0 10px;
+            margin: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        
         button {
             padding: 8px 15px;
-            background-color: #4CAF50;
+            background-color:rgb(244, 119, 182); /* Hot pink */
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin: 0 5px;
         }
+        
         button:hover {
-            background-color: #45a049;
+            background-color:rgb(254, 95, 180); /* Deeper pink on hover */
         }
+        
+        .profile-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .profile-icon img {
+            width: 70px; /* Larger profile icon */
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solidrgb(251, 121, 186);
+        }
+        
         .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
-            margin-top: 20px;
-        }
-        .card {
-            background-color: white;
-            border-radius: 8px;
             padding: 20px;
-            width: 280px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            max-width: 1200px;
+            margin: 0 auto;
         }
+        
+        .card {
+            background-color:rgb(190, 242, 255); /* Hot pink */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+        
         .card h2 {
-            margin-top: 0;
             color: #333;
+            margin-top: 0;
         }
+        
         .diet-tags {
             margin: 10px 0;
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
         }
+        
         .diet-tag {
             background-color: #4CAF50;
             color: white;
@@ -139,16 +144,17 @@ if (!$restaurants) {
             border-radius: 12px;
             font-size: 12px;
         }
-        .profile-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 800px;
         }
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
+
+        
     </style>
 </head>
 <body>
@@ -163,7 +169,8 @@ if (!$restaurants) {
     <!-- Search Bar -->
     <div class="search-bar">
         <form method="POST">
-            <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" placeholder="Search Restaurants...">
+            <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" 
+                   placeholder="Search Restaurants..." style="width: 60%;">
             <button type="submit">Search</button>
         </form>
     </div>
@@ -202,7 +209,7 @@ if (!$restaurants) {
         </form>
     </div>
 
-    <!-- List of Restaurants -->
+    <!-- Restaurant List -->
     <div class="container">
         <?php if (mysqli_num_rows($restaurants) > 0): ?>
             <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
@@ -214,7 +221,7 @@ if (!$restaurants) {
                 $dietResult = mysqli_query($conn, $dietQuery);
                 ?>
                 <div class="card">
-                    <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" style="text-decoration: none; color: inherit;">
+                    <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" style="text-decoration:none; color:inherit;">
                         <h2><?= htmlspecialchars($restaurant['name']) ?></h2>
                         <p><strong>Location:</strong> <?= htmlspecialchars($restaurant['location']) ?></p>
                         <p><strong>Status:</strong> <?= htmlspecialchars($restaurant['operationStatus']) ?></p>
@@ -230,9 +237,9 @@ if (!$restaurants) {
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
-            <div style="text-align: center; width: 100%; padding: 20px; background: white; border-radius: 8px;">
+            <div class="no-results">
                 <p>No restaurants found matching your criteria.</p>
-                <a href="?">Clear all filters</a>
+                <a href="?"><button>Show All Restaurants</button></a>
             </div>
         <?php endif; ?>
     </div>
