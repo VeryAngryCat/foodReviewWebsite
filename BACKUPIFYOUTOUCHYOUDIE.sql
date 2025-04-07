@@ -29,6 +29,7 @@ DROP TABLE IF EXISTS FavouriteDiet;
 DROP TABLE IF EXISTS FavouriteDish;
 DROP TABLE IF EXISTS FavouriteRestaurant;
 DROP TABLE IF EXISTS Restaurant;
+DROP TABLE IF EXISTS RestaurantDietary;
 DROP TABLE IF EXISTS RestaurantCuisine;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS UserPreference;
@@ -38,6 +39,36 @@ SET FOREIGN_KEY_CHECKS = 1;
 --
 -- Table structure for table `Cuisine`
 --
+
+CREATE TABLE RestaurantDietary (
+    restaurantID INT(11) NOT NULL,
+    dietID INT(11) NOT NULL,
+    PRIMARY KEY (restaurantID, dietID),
+    FOREIGN KEY (restaurantID) REFERENCES Restaurant(restaurantID),
+    FOREIGN KEY (dietID) REFERENCES DietaryPreference(dietID)
+);
+
+-- Sample data - adjust these IDs to match your actual restaurants and diets
+INSERT INTO RestaurantDietary (restaurantID, dietID) VALUES
+-- McDonalds (ID 1)
+(1, 3),  -- Gluten-Free
+(1, 5),  -- Nut-Free
+
+-- Mamma Mias Desserts (ID 2)
+(2, 1),  -- Vegetarian
+(2, 4),  -- Vegan
+
+-- Mario Pizza Place (ID 3)
+(3, 1),  -- Vegetarian
+(3, 6),  -- Dairy-Free
+
+-- Chin chin (ID 4)
+(4, 2),  -- Halal
+(4, 3),  -- Gluten-Free
+
+-- Indo-Asian Buffet (ID 5)
+(5, 1),  -- Vegetarian
+(5, 2);  -- Halal
 
 CREATE TABLE `Cuisine` (
   `cuisineID` int(11) NOT NULL,
