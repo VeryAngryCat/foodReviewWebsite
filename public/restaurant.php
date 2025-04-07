@@ -63,7 +63,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeRestaurant'])) {
     }
 }
 
+// Fetch associated cuisines for this restaurant (only name)
+$cuisineQuery = "
+    SELECT c.name 
+    FROM Cuisine c 
+    JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID
+    WHERE rc.restaurantID = ?
+";
+$cuisineStmt = $conn->prepare($cuisineQuery);
+$cuisineStmt->bind_param("i", $restaurantID);
+$cuisineStmt->execute();
+$cuisineResult = $cuisineStmt->get_result();
 
+$cuisines = [];
+while ($cuisine = $cuisineResult->fetch_assoc()) {
+    $cuisines[] = $cuisine['name'];
+}
 
 
 $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
@@ -217,6 +232,10 @@ $stmt->close();
     <div class="restaurant-info">
         <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p>
         <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p>
+        <!-- Display Cuisines (Only Names) -->
+        <p><span class="highlight">Cuisines:</span>
+            <?php echo implode(", ", $cuisines); ?>
+        </p>
         <p><strong>Average Rating:</strong>
             <?php 
             echo $averageRating !== null 
