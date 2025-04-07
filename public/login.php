@@ -10,3 +10,11 @@ while ($row = mysqli_fetch_assoc($result)) {
 }
 mysqli_close($conn);
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="publicReviewStyle1.css">
+</head>
+<body>
+</body>
+</html>

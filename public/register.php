@@ -2,14 +2,6 @@
 // Database connection
 include '../includes/dbConn.php';
 
-// Create connection
-$conn = mysqli_connect($servername, $username, $password, $database);
-
-// Check connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
 // Initialize error and success messages
 $error_message = '';
 $success_message = '';
@@ -80,59 +72,7 @@ mysqli_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        .container {
-            width: 50%;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0 20px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-        }
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-        .success {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="publicReviewStyle1.css">
 </head>
 <body>
 
