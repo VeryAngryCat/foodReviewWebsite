@@ -2,7 +2,7 @@
 // Database connection
 include '../includes/dbConn.php';
 
-// Initialize error and success messages
+// Initialises error and success messages
 $error_message = '';
 $success_message = '';
 
@@ -31,15 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($count > 0) {
             $error_message = "Username or email already exists.";
         } else {
-            // Validate email (must contain @)
+            // Validates email (must contain @)
             if (strpos($email, '@') === false) {
                 $error_message = "Email must contain '@'.";
             } else {
-                // Validate password (must contain at least one uppercase letter, one lowercase letter, and one number)
+                // Validates password (must contain at least one uppercase letter, one lowercase letter, and one number)
                 if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
                     $error_message = "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
                 } else {
-                    // Hash the password
+                    // Hashes the password
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
                     // SQL to insert user
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }  
 
-// Close the database connection
+// Closes the database connection
 mysqli_close($conn);
 ?>
 
@@ -72,7 +72,7 @@ mysqli_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
-    <link rel="stylesheet" type="text/css" href="publicReviewStyle1.css">
+    <link rel="stylesheet" type="text/css" href="../assets/publicReviewStyle1.css">
 </head>
 <body>
 
@@ -99,7 +99,7 @@ mysqli_close($conn);
             <input type="submit" value="Register">
         </form>
 
-        <!-- Display error or success messages -->
+        <!-- Displays error or success messages -->
         <?php
             if ($error_message) {
                 echo "<p class='error'>$error_message</p>";
