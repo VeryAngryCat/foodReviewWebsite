@@ -25,6 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
         if (password_verify($pword, $row["userPassword"])) {
+            echo "Password is valid!";
+        } else {
+            echo "Password is NOT valid!";
+        }
+        if (password_verify($pword, $row["userPassword"])) {
             $success_message = "Login successful!";
         } else {
             $error_message = "Incorrect password.";
@@ -32,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $error_message = "Username does not exist.";
     }
+    echo "Database hashed password: " . $row['userPassword']; // Check the password hash stored in the database
+    echo "Password entered: " . $pword; // Check the entered password
     mysqli_stmt_close($stmt);
 }
 
@@ -49,7 +56,7 @@ mysqli_close($conn);
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
             <label for="userPassword">Password</label>
-            <input type="text" id="userPassword" name="userPassword" required>
+            <input type="password" id="userPassword" name="userPassword" required>
 
             <input type="submit" value="Log in">
         </form>
@@ -59,6 +66,8 @@ mysqli_close($conn);
             }
             if ($success_message) {
                 echo "<p class='success'>$success_message</p>";
+                header("Location: ../public/browse.php");
+                exit();
             }
         ?>
     </div>
