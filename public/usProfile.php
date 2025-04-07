@@ -1,9 +1,12 @@
 <?php
 session_start();
+
+var_dump($_SESSION);
+
 // Database connection
 include '../includes/dbConn.php';
 
-// Check if the userID session is set (for testing, it will always be set)
+// Check if the userID session is set
 if (!isset($_SESSION['userID'])) {
     echo "Session variable 'userID' is not set.";
     exit();
@@ -15,15 +18,19 @@ $userID = $_SESSION['userID'];
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
 $stmt->bind_param("i", $userID);
 $stmt->execute();
-$stmt->bind_result($firstName, $lastName, $email, $username);
-$stmt->fetch();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 $stmt->close();
 
-// Check if the user data was fetched
-if (!$firstName) {
+if (!$user) {
     echo "No user data found for userID: $userID";
     exit();
 }
+
+$firstName = $user['firstName'];
+$lastName = $user['lastName'];
+$email = $user['email'];
+$username = $user['username'];
 
 // Get number of favorite restaurants
 $favSql = "SELECT COUNT(*) FROM FavouriteRestaurant WHERE userID = ?";
@@ -33,12 +40,6 @@ $favStmt->execute();
 $favStmt->bind_result($favoriteCount);
 $favStmt->fetch();
 $favStmt->close();
-
-// Check if the favorite count was fetched
-if ($favoriteCount === NULL) {
-    echo "Error fetching favorite restaurants count.";
-    exit();
-}
 
 // Get user reviews
 $reviewSql = "
@@ -52,11 +53,28 @@ $reviewStmt->bind_param("i", $userID);
 $reviewStmt->execute();
 $reviewResult = $reviewStmt->get_result();
 
-// Check if reviews were fetched
-if (!$reviewResult) {
-    echo "Error fetching reviews for userID: $userID";
-    exit();
-}
+// Get user's dietary preferences
+$dietSql = "
+    SELECT d.name, d.description 
+    FROM FavouriteDiet fd 
+    JOIN DietaryPreference d ON fd.dietID = d.dietID 
+    WHERE fd.userID = ?";
+$dietStmt = $conn->prepare($dietSql);
+$dietStmt->bind_param("i", $userID);
+$dietStmt->execute();
+$dietResult = $dietStmt->get_result();
+
+// Get favorite dishes with restaurant info
+$favCombinedSql = "
+    SELECT d.name AS dishName, r.name AS restaurantName 
+    FROM FavouriteDish fd
+    JOIN Dish d ON fd.dishID = d.dishID
+    JOIN Restaurant r ON d.restaurantID = r.restaurantID
+    WHERE fd.userID = ?";
+$favCombinedStmt = $conn->prepare($favCombinedSql);
+$favCombinedStmt->bind_param("i", $userID);
+$favCombinedStmt->execute();
+$favCombinedResult = $favCombinedStmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -119,6 +137,17 @@ if (!$reviewResult) {
         .review-box strong {
             color: #33691e;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f1f8e9;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #c5e1a5;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -134,9 +163,44 @@ if (!$reviewResult) {
             <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
             <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
             <p><strong>Saved Favorites:</strong> <?php echo $favoriteCount; ?></p>
+
+            <?php if ($dietResult->num_rows > 0): ?>
+                <p><strong>Dietary Preferences:</strong></p>
+                <ul>
+                    <?php while ($diet = $dietResult->fetch_assoc()): ?>
+                       <li>
+                          <strong><?php echo htmlspecialchars($diet['name']); ?></strong>
+                          <?php if ($diet['description']): ?>
+                            - <?php echo htmlspecialchars($diet['description']); ?>
+                          <?php endif; ?>
+                       </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <p><strong>Dietary Preferences:</strong> You haven't selected any.</p>
+            <?php endif; ?>      
+    
         </div>
 
         <div class="reviews">
+            <h3>Your Favorite Dishes & Restaurants</h3>
+            <?php if ($favCombinedResult->num_rows > 0): ?>
+                <table>
+                    <tr>
+                        <th>Dish</th>
+                        <th>Restaurant</th>
+                    </tr>
+                    <?php while ($row = $favCombinedResult->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['dishName']); ?></td>
+                        <td><?php echo htmlspecialchars($row['restaurantName']); ?></td>
+                    </tr>
+                    <?php endwhile; ?>
+                </table>
+            <?php else: ?>
+                <p>You haven't favorited any dishes yet.</p>
+            <?php endif; ?>
+
             <h3>Your Reviews</h3>
             <?php 
             if ($reviewResult->num_rows > 0) {
