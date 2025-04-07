@@ -1,6 +1,8 @@
 <?php
 session_start();
-include('../includes/dbConn.php');
+// Database connection
+include '../includes/dbConn.php';
+
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
     $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";

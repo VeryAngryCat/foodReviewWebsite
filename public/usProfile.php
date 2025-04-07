@@ -1,12 +1,7 @@
 <?php
-error_reporting(E_ALL); // Report all errors
-ini_set('display_errors', 1); // Display errors on the page
-
 session_start();
-
-
-// Include the database connection file (adjust path if necessary)
-include '../includes/dbConn.php'; // Adjust the path as needed
+// Database connection
+include '../includes/dbConn.php';
 
 // Check if the userID session is set (for testing, it will always be set)
 if (!isset($_SESSION['userID'])) {

@@ -1,6 +1,7 @@
 <?php
 session_start();
-include('../includes/dbConn.php');
+// Database connection
+include '../includes/dbConn.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
