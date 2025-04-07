@@ -51,7 +51,11 @@ mysqli_close($conn);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
+    <style>
+        input[type="submit"] { background-color: blue;}
+        input[type="submit"]:hover {background-color: rgb(89, 89, 255);}
+    </style>
 </head>
 <body>
     <div class="container">
