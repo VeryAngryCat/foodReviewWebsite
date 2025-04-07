@@ -24,15 +24,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
-        if (password_verify($pword, $row["userPassword"])) {
-            echo "Password is valid!";
+        $storedPassword = $row["userPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
+        if (strlen($storedPassword) == 60 && (substr($storedPassword, 0, 3) == '$2y$' || substr($storedPassword, 0, 3) == '$2a$' || substr($storedPassword, 0, 3) == '$2b$')) {
+            if (password_verify($pword, $row["userPassword"])) {
+                $success_message = "Login successful!";
+            } else {
+                $error_message = "Incorrect password.";
+            }
         } else {
-            echo "Password is NOT valid!";
-        }
-        if (password_verify($pword, $row["userPassword"])) {
-            $success_message = "Login successful!";
-        } else {
-            $error_message = "Incorrect password.";
+            if ($pword == $storedPassword) {
+                $success_message = "Login successful!";
+            } else {
+                $error_message = "Incorrect password.";
+            }
         }
     } else {
         $error_message = "Username does not exist.";
