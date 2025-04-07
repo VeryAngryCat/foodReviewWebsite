@@ -30,6 +30,42 @@ if (!isset($_SESSION['userID'])) {
 
 $userID = $_SESSION['userID'];
 
+// Check if user already liked this restaurant
+$liked = false;
+$checkLike = $conn->prepare("SELECT * FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
+$checkLike->bind_param("ii", $userID, $restaurantID);
+$checkLike->execute();
+$likeResult = $checkLike->get_result();
+if ($likeResult->num_rows > 0) {
+    $liked = true;
+}
+
+// Handle Like Button POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeRestaurant'])) {
+    $likeRestaurantID = intval($_POST['restaurantID']); // from hidden input
+
+    // Check if already liked
+    $check = $conn->prepare("SELECT * FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
+    $check->bind_param("ii", $userID, $likeRestaurantID);
+    $check->execute();
+    $result = $check->get_result();
+
+    if ($result->num_rows === 0) {
+        // Not already liked, insert into FavouriteRestaurent
+        $insert = $conn->prepare("INSERT INTO FavouriteRestaurant (userID, restaurantID) VALUES (?, ?)");
+        $insert->bind_param("ii", $userID, $likeRestaurantID);
+        $insert->execute();
+    } else {
+        // Already liked, delete from FavouriteRestaurent (Unlike)
+        $delete = $conn->prepare("DELETE FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
+        $delete->bind_param("ii", $userID, $likeRestaurantID);
+        $delete->execute();
+    }
+}
+
+
+
+
 $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $restaurantID);
@@ -51,6 +87,10 @@ $ratingData = $ratingResult->fetch_assoc();
 
 $averageRating = $ratingData['average_rating'];
 
+
+
+
+
 $stmt->close();
 ?>
 
@@ -64,20 +104,41 @@ $stmt->close();
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color:rgb(153, 219, 215);
+            background-color:rgb(255, 225, 238);
             color: #333;
         }
 
         .header {
-            background-color: rgb(255, 225, 238);
+            background-color: rgb(153, 219, 215);
             color: black;
             padding: 30px 20px;
+            position: relative;
             text-align: center;
         }
 
         .header h1 {
             font-size: 45px;
             margin-bottom: 10px;
+        }
+        .heart-form {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .heart-btn {
+            background: none;
+            border: none;
+            font-size: 60px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            color: black;
+        }
+
+        .heart-btn:hover {
+            transform: scale(1.2);
         }
 
         .container {
@@ -136,6 +197,18 @@ $stmt->close();
 <body>
 
 <div class="header">
+    
+    <!-- ❤️ Heart Button -->
+    <?php if ($userID): ?>
+        <form method="POST" style="display:inline;">
+            <input type="hidden" name="restaurantID" value="<?= $restaurantID ?>">
+            <button type="submit" name="likeRestaurant" style="background:none; border:none; font-size:24px; cursor:pointer;">
+                <?= $liked ? '❤️' : '🤍' ?>
+            </button>
+        </form>
+    <?php else: ?>
+        <p><a href="login.php">Log in</a> to like this restaurant.</p>
+    <?php endif; ?>
     <h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
     
 </div>
@@ -158,6 +231,8 @@ $stmt->close();
         <a href="review.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Reviews</a>
     </div>
 </div>
+
+
 
 
 
