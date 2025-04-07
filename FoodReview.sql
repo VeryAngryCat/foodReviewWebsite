@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 07, 2025 at 10:26 AM
+-- Generation Time: Apr 07, 2025 at 03:59 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,6 +17,9 @@ SET time_zone = "+00:00";
 ;
 /*!40101 SET NAMES utf8mb4 */
 ;
+--
+-- Database: `FoodReview`
+--
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS Admins;
 DROP TABLE IF EXISTS Cuisine;
@@ -32,10 +35,6 @@ DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS UserPreference;
 DROP TABLE IF EXISTS Users;
 SET FOREIGN_KEY_CHECKS = 1;
---
--- Database: `FoodReview`
---
-
 -- --------------------------------------------------------
 --
 -- Table structure for table `Admins`
@@ -171,7 +170,8 @@ CREATE TABLE `Dish` (
   `name` varchar(40) NOT NULL,
   `price` float DEFAULT NULL,
   `description` varchar(85) DEFAULT NULL,
-  `isAvailable` tinyint(1) DEFAULT 0
+  `isAvailable` tinyint(1) DEFAULT 0,
+  `DietID` int(11) DEFAULT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 --
 -- Dumping data for table `Dish`
@@ -183,7 +183,8 @@ INSERT INTO `Dish` (
     `name`,
     `price`,
     `description`,
-    `isAvailable`
+    `isAvailable`,
+    `DietID`
   )
 VALUES (
     1,
@@ -191,16 +192,26 @@ VALUES (
     'Kabsa',
     38,
     'Mixed rice dish made with basmati rice, meat, vegetables, and spices.',
-    1
+    1,
+    2
   ),
-  (2, 1, 'Big Tasty', 6.99, 'A beef burger', 1),
+  (
+    2,
+    1,
+    'Big Tasty',
+    6.99,
+    'A beef burger',
+    1,
+    NULL
+  ),
   (
     3,
     1,
     'McFlurry',
     5.99,
     'Frozen soft serve ice cream with flavours of caramel, Oreo, etc.',
-    1
+    1,
+    NULL
   ),
   (
     4,
@@ -208,7 +219,8 @@ VALUES (
     'Homemade Tiramisu',
     12,
     'Made of coffee-dipped bread, layered with whipped egg, sugar, mascarpone.',
-    1
+    1,
+    NULL
   ),
   (
     5,
@@ -216,7 +228,8 @@ VALUES (
     'Summer Affogato',
     4.5,
     'Sweet vanilla ice cream topped, or drowned with hot espresso coffee.',
-    0
+    0,
+    NULL
   ),
   (
     6,
@@ -224,7 +237,8 @@ VALUES (
     'Gingery Spring Soup',
     8,
     'Plant-based soup with sliced ginger, jalapeño, asparagus, and tofu.',
-    1
+    1,
+    4
   ),
   (
     7,
@@ -232,7 +246,8 @@ VALUES (
     'Juicy Pan-Seared Steak',
     23,
     'Steak seared and caramelised, topped with garlic rosemary-infused butter.',
-    1
+    1,
+    NULL
   ),
   (
     8,
@@ -240,7 +255,8 @@ VALUES (
     'Seafood Paella',
     15.99,
     'Rice made with clams, mussels and shrimp along with chorizo and saffron.',
-    1
+    1,
+    NULL
   ),
   (
     9,
@@ -248,7 +264,8 @@ VALUES (
     'Fish and Chips',
     2.5,
     'Battered and fried fish, served with chips. Obviously.',
-    1
+    1,
+    NULL
   ),
   (
     10,
@@ -256,7 +273,8 @@ VALUES (
     'Cereal with milk',
     1.95,
     'Got no time? The most accessible and realistic breakfast.',
-    0
+    0,
+    5
   ),
   (
     11,
@@ -264,7 +282,8 @@ VALUES (
     'Special Sushi Set 40pcs',
     30,
     'California, Tempura and Philadelphia rolls, with complimentary sashimi',
-    1
+    1,
+    NULL
   ),
   (
     12,
@@ -272,7 +291,8 @@ VALUES (
     'Traditional Goubuli',
     7,
     'Traditional Baozi steamed bun.',
-    1
+    1,
+    6
   ),
   (
     13,
@@ -280,7 +300,8 @@ VALUES (
     'Pork Ribs Soup',
     9,
     'Chinese soup made from pork ribs, red dates (jujubes), daikon, and carrots.',
-    1
+    1,
+    NULL
   ),
   (
     14,
@@ -288,7 +309,8 @@ VALUES (
     'Braised Chicken Feet',
     7.8,
     'Chicken feet stewed with a variety of spices, deeply infused with flavour.',
-    0
+    0,
+    NULL
   ),
   (
     15,
@@ -296,7 +318,8 @@ VALUES (
     'Osmanthus Oolong',
     5,
     'Freshly brewed Kung Fu tea, slightly sweet, scented with Osmanthus flowers',
-    1
+    1,
+    4
   ),
   (
     16,
@@ -304,7 +327,8 @@ VALUES (
     'Kings Garden Tea',
     5,
     'A special curation of Chrysanthemum flowers, green tea and oolong tea.',
-    1
+    1,
+    NULL
   ),
   (
     17,
@@ -312,7 +336,8 @@ VALUES (
     'Chicken Mac Meal',
     11,
     'Has two Halal chicken patties and middle bun. Served with fries and a soft drink.',
-    1
+    1,
+    2
   ),
   (
     18,
@@ -320,7 +345,8 @@ VALUES (
     'American Chopsuey',
     9.5,
     'Crispy fried noodles, with wok tossed vegetables & chicken in Sweet & Sour sauce.',
-    1
+    1,
+    6
   ),
   (
     19,
@@ -328,7 +354,8 @@ VALUES (
     'Schezwan Egg Fried Rice',
     5.5,
     'Steamed Rice, tossed with eggs, seasoning, spring onions, and a homemade sauce.',
-    1
+    1,
+    NULL
   ),
   (
     20,
@@ -336,7 +363,8 @@ VALUES (
     'Vegetable Spring Rolls',
     8.75,
     'Fresh tossed vegetables rolled & fried in spring roll sheets. The perfect snack.',
-    1
+    1,
+    4
   ),
   (
     21,
@@ -344,7 +372,8 @@ VALUES (
     'Wonton Chicken Soup',
     7.2,
     'A clear soup with Chicken Wontons, blanched & cooked to perfection.',
-    0
+    0,
+    3
   ),
   (
     22,
@@ -352,7 +381,8 @@ VALUES (
     'Kiwilango',
     23,
     'Organic grass fed beef, jalapeños, blue cheese, tortilla chips, hot sauce.',
-    1
+    1,
+    NULL
   ),
   (
     23,
@@ -360,7 +390,8 @@ VALUES (
     'Breakfast Poutine',
     17,
     'Tots, parm, sausage gravy, fried egg.',
-    1
+    1,
+    NULL
   ),
   (
     24,
@@ -368,7 +399,8 @@ VALUES (
     'Nicoise',
     24,
     'Seared rare Ahi, potatoes, green beans, nicoise olives, capers, tomato, egg.',
-    1
+    1,
+    NULL
   ),
   (
     25,
@@ -376,7 +408,8 @@ VALUES (
     'Flightless Bird',
     16,
     'Drink with kraken, khalua, cream float.',
-    0
+    0,
+    NULL
   ),
   (
     26,
@@ -384,7 +417,8 @@ VALUES (
     'Mix Grill',
     86.85,
     'Kebab, cheese patty, chicken shish, lamb shish, lamb chops',
-    1
+    1,
+    NULL
   ),
   (
     27,
@@ -392,6 +426,7 @@ VALUES (
     'Gavurdagi Salad',
     14.1,
     'Tomato, cucumber, green capsicum, onion, walnut, pomegranate, parsley, feta cheese',
+    1,
     1
   ),
   (
@@ -400,7 +435,8 @@ VALUES (
     'Çökertme',
     35.12,
     'Beef tenderloin, strained yogurt, eggplant, capsicum, red onion, tomato sauce.',
-    1
+    1,
+    NULL
   ),
   (
     29,
@@ -408,7 +444,8 @@ VALUES (
     'Chefs Tasting Course',
     95.45,
     'Seasonal omakase shaped by the finest seafood available each day. ',
-    1
+    1,
+    NULL
   ),
   (
     30,
@@ -416,7 +453,8 @@ VALUES (
     'Evening Buffet',
     40.5,
     'A collection of Indo-Chinese dishes like Manchurian, Fried Rice, Hakka Noodles.',
-    1
+    1,
+    NULL
   ),
   (
     31,
@@ -424,7 +462,8 @@ VALUES (
     'Somefood',
     5,
     'A delicious meal of Somefood bringing with a taste of someflavour.',
-    0
+    0,
+    3
   ),
   (
     32,
@@ -432,7 +471,8 @@ VALUES (
     'Spaghetti with Meatballs',
     9.25,
     'Spaghetti meatballs recipe done in an authentic way, just like Nonna makes it!',
-    1
+    1,
+    NULL
   ),
   (
     33,
@@ -440,7 +480,8 @@ VALUES (
     'Margherita Pizza',
     17,
     'Pizza with tomatoes, basil, and mozzarella cheese.',
-    1
+    1,
+    NULL
   ),
   (
     34,
@@ -448,7 +489,8 @@ VALUES (
     'Diavola Pizza',
     17,
     'Pizza with kalamata olives, spicy peppers, and gooey mozzarella cheese.',
-    1
+    1,
+    NULL
   ),
   (
     35,
@@ -456,7 +498,8 @@ VALUES (
     'Pepperoni Pizza',
     17,
     'Tomato based pizza topped with beef pepperoni, and cheesy mozzarella.',
-    1
+    1,
+    NULL
   ),
   (
     36,
@@ -464,7 +507,8 @@ VALUES (
     'Pizza Quattro Formaggi',
     17,
     'Pizza with mozzarella, gorgonzola, Parmigiano Reggiano, and goat cheese.',
-    1
+    1,
+    NULL
   ),
   (
     37,
@@ -472,7 +516,8 @@ VALUES (
     'Ceasar Salad',
     15,
     'Romaine lettuce, croutons, Parmesan cheese, and Caesar dressing',
-    1
+    1,
+    NULL
   ),
   (
     38,
@@ -480,6 +525,7 @@ VALUES (
     'Greek Salad',
     8.99,
     'Sliced cucumbers, tomatoes, green bell pepper, red onion, olives, and feta cheese',
+    1,
     1
   ),
   (
@@ -488,7 +534,8 @@ VALUES (
     'Cobb Salad',
     15,
     'Lettuce topped with bacon, chicken, boiled eggs, tomatoes.',
-    0
+    0,
+    NULL
   ),
   (
     40,
@@ -496,6 +543,7 @@ VALUES (
     'Fried Calamari',
     18,
     'Pieces of squid soaked in buttermilk, coated in flour and deep fried to golden brown.',
+    NULL,
     NULL
   ),
   (
@@ -504,7 +552,8 @@ VALUES (
     'Marinated Sea Kelp',
     8,
     'Marinated sea kelp with black pepper vinegar and sesame dressing',
-    0
+    0,
+    1
   ),
   (
     42,
@@ -512,7 +561,8 @@ VALUES (
     'Chicken with Fried Shallot',
     13,
     'Free range chicken with fried shallot and black truffle',
-    1
+    1,
+    NULL
   ),
   (
     43,
@@ -520,6 +570,7 @@ VALUES (
     'Pita Wraps',
     6.19,
     'House renditions of pita rolls from Mediterranean',
+    1,
     1
   ),
   (
@@ -528,7 +579,8 @@ VALUES (
     'Sliced Lamb Hunan Style',
     7,
     'Spiced with native pepper, green chilli and oyster sauce',
-    1
+    1,
+    NULL
   ),
   (
     45,
@@ -536,7 +588,8 @@ VALUES (
     'Chicken Siomai',
     17,
     'Ground chicken, shrimp, mushroom, carrots, onion, black pepper, sesame oil, and egg.',
-    1
+    1,
+    NULL
   ),
   (
     46,
@@ -544,7 +597,8 @@ VALUES (
     'Dim Sum Ruam Mitr',
     25,
     'Choice of mixed assorted dim sum.',
-    1
+    1,
+    NULL
   ),
   (
     47,
@@ -552,7 +606,8 @@ VALUES (
     'Lamb Kebab 7pcs',
     7,
     'Shish Kebab from lamb',
-    1
+    1,
+    2
   );
 -- --------------------------------------------------------
 --
@@ -1366,7 +1421,8 @@ ADD PRIMARY KEY (`dietID`);
 --
 ALTER TABLE `Dish`
 ADD PRIMARY KEY (`dishID`),
-  ADD KEY `rest1_fk_key` (`restaurantID`);
+  ADD KEY `rest1_fk_key` (`restaurantID`),
+  ADD KEY `dt2_fk_key` (`DietID`);
 --
 -- Indexes for table `FavouriteCuisine`
 --
@@ -1417,12 +1473,13 @@ ADD PRIMARY KEY (`userID`);
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
 --
 -- AUTO_INCREMENT for table `Admins`
 --
 ALTER TABLE `Admins`
 MODIFY `adminID` int(11) NOT NULL AUTO_INCREMENT,
-  AUTO_INCREMENT = 3;
+  AUTO_INCREMENT = 4;
 --
 -- AUTO_INCREMENT for table `Cuisine`
 --
@@ -1467,7 +1524,10 @@ MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT,
 -- Constraints for table `Dish`
 --
 ALTER TABLE `Dish`
-ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ADD CONSTRAINT `dt2_fk_key` FOREIGN KEY (`DietID`) REFERENCES `DietaryPreference` (`dietID`) ON DELETE
+SET NULL ON UPDATE
+SET NULL,
+  ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `FavouriteCuisine`
 --
