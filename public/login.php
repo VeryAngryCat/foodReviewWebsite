@@ -57,7 +57,7 @@ mysqli_close($conn);
 <body>
     <div class="container">
         <h2>Login</h2>
-        <form method="POST" action="adminLogin.php">
+        <form method="POST" action="login.php">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
             <label for="userPassword">Password</label>

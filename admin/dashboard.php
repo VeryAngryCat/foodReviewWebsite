@@ -5,8 +5,9 @@ session_start();
 ?>
 <!DOCTYPE html>
 <html>
-
-<head></head>
+<head>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+</head>
 <body>
     <div class="container">
         <h1>Welcome Administrator!</h1>
