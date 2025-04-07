@@ -22,7 +22,7 @@ if (isset($_POST['search'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Restaurants</title>
-    <link ref="stylesheet" type="text/css" href="../assets/foodRev2.css">
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev2.css">
 </head>
 <body>
 
