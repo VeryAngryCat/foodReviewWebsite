@@ -8,13 +8,13 @@ $success_message = '';
 // Processes data from the user, linked to form in HTML
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $uname = $_POST['username'];
-    $pword = $_POST['userPassword'];
+    $pword = $_POST['adminPassword'];
 
     if (empty($uname) || empty($pword)) {
         $error_message = "All fields are required!";
     }
 
-    $sql = "SELECT username, userPassword FROM Users WHERE username = ?";
+    $sql = "SELECT username, adminPassword FROM Admins WHERE username = ?";
 
     // Prevents SQL inection
     $stmt = mysqli_prepare($conn, $sql);
@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
-        $storedPassword = $row["userPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
+        $storedPassword = $row["adminPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
         if (strlen($storedPassword) == 60 && (substr($storedPassword, 0, 3) == '$2y$' || substr($storedPassword, 0, 3) == '$2a$' || substr($storedPassword, 0, 3) == '$2b$')) {
-            if (password_verify($pword, $row["userPassword"])) {
+            if (password_verify($pword, $row["adminPassword"])) {
                 $success_message = "Login successful!";
             } else {
                 $error_message = "Incorrect password.";
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $error_message = "Username does not exist.";
     }
-    echo "Database hashed password: " . $row['userPassword']; // Check the password hash stored in the database
+    echo "Database hashed password: " . $row['adminPassword']; // Check the password hash stored in the database
     echo "Password entered: " . $pword; // Check the entered password
     mysqli_stmt_close($stmt);
 }
@@ -51,16 +51,16 @@ mysqli_close($conn);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h2>Administrator Login</h2>
         <form method="POST" action="adminLogin.php">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
-            <label for="userPassword">Password</label>
-            <input type="password" id="userPassword" name="userPassword" required>
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" name="adminPassword" required>
 
             <input type="submit" value="Log in">
         </form>
@@ -70,7 +70,7 @@ mysqli_close($conn);
             }
             if ($success_message) {
                 echo "<p class='success'>$success_message</p>";
-                header("Location: ../public/browse.php");
+                header("Location: ../admin/dashboard.php");
                 exit();
             }
         ?>
