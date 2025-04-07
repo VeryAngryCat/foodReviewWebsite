@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2025 at 08:07 AM
+-- Generation Time: Apr 07, 2025 at 10:26 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,10 +17,8 @@ SET time_zone = "+00:00";
 ;
 /*!40101 SET NAMES utf8mb4 */
 ;
---
--- Database: `FoodReview`
---
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS Admins;
 DROP TABLE IF EXISTS Cuisine;
 DROP TABLE IF EXISTS DietaryPreference;
 DROP TABLE IF EXISTS Dish;
@@ -34,6 +32,28 @@ DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS UserPreference;
 DROP TABLE IF EXISTS Users;
 SET FOREIGN_KEY_CHECKS = 1;
+--
+-- Database: `FoodReview`
+--
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `Admins`
+--
+
+CREATE TABLE `Admins` (
+  `adminID` int(11) NOT NULL,
+  `username` varchar(20) NOT NULL,
+  `adminPassword` varchar(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `Admins`
+--
+
+INSERT INTO `Admins` (`adminID`, `username`, `adminPassword`)
+VALUES (1, 'admin1', 'hC2yg2h3fX'),
+  (2, 'admin2', 'd5Yeyy2r30'),
+  (3, 'admin3', 'gad4Djq56SL9');
 -- --------------------------------------------------------
 --
 -- Table structure for table `Cuisine`
@@ -1327,6 +1347,11 @@ VALUES (
 --
 
 --
+-- Indexes for table `Admins`
+--
+ALTER TABLE `Admins`
+ADD PRIMARY KEY (`adminID`);
+--
 -- Indexes for table `Cuisine`
 --
 ALTER TABLE `Cuisine`
@@ -1392,7 +1417,12 @@ ADD PRIMARY KEY (`userID`);
 --
 -- AUTO_INCREMENT for dumped tables
 --
-
+--
+-- AUTO_INCREMENT for table `Admins`
+--
+ALTER TABLE `Admins`
+MODIFY `adminID` int(11) NOT NULL AUTO_INCREMENT,
+  AUTO_INCREMENT = 3;
 --
 -- AUTO_INCREMENT for table `Cuisine`
 --
