@@ -9,7 +9,7 @@ session_start();
 <head></head>
 <body>
     <div class="container">
-        <h1>Welcome Admin!</h1>
+        <h1>Welcome Administrator!</h1>
         <ul>
             <li><a href="restaurant.php">Manage Restaurants</a></li>
             <li><a href="reviews.php">Manage Reviews</a></li>

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $sql = "SELECT username, userPassword FROM Users WHERE username = ?";
 
-    // Prevents SQL inection
+    // Prevents SQL injection
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $uname);
     mysqli_stmt_execute($stmt);
@@ -41,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $error_message = "Username does not exist.";
     }
-    echo "Database hashed password: " . $row['userPassword']; // Check the password hash stored in the database
-    echo "Password entered: " . $pword; // Check the entered password
     mysqli_stmt_close($stmt);
 }
 
