@@ -112,12 +112,12 @@ $stmt->close();
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color:rgb(255, 225, 238);
+            background-color:rgb(89, 169, 255);
             color: #333;
         }
 
         .header {
-            background-color: rgb(153, 219, 215);
+            background-color: rgb(253, 204, 211);
             color: black;
             padding: 30px 20px;
             position: relative;
@@ -128,31 +128,11 @@ $stmt->close();
             font-size: 45px;
             margin-bottom: 10px;
         }
-        .heart-form {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .heart-btn {
-            background: none;
-            border: none;
-            font-size: 60px;
-            cursor: pointer;
-            padding: 0;
-            margin: 0;
-            color: black;
-        }
-
-        .heart-btn:hover {
-            transform: scale(1.2);
-        }
 
         .container {
             max-width: 800px;
             margin: 40px auto;
-            background:rgb(255, 255, 255);
+            background:rgb(190, 242, 255);
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -186,8 +166,8 @@ $stmt->close();
         }
 
         .btn {
-            background-color: #b03a5b;
-            color: white;
+            background-color: rgb(253, 204, 211);
+            color: black;
             text-decoration: none;
             padding: 12px 24px;
             font-size: 16px;
@@ -206,17 +186,6 @@ $stmt->close();
 
 <div class="header">
     
-    <!-- ❤️ Heart Button -->
-    <?php if ($userID): ?>
-        <form method="POST" style="display:inline;">
-            <input type="hidden" name="restaurantID" value="<?= $restaurantID ?>">
-            <button type="submit" name="likeRestaurant" style="background:none; border:none; font-size:24px; cursor:pointer;">
-                <?= $liked ? '❤️' : '🤍' ?>
-            </button>
-        </form>
-    <?php else: ?>
-        <p><a href="login.php">Log in</a> to like this restaurant.</p>
-    <?php endif; ?>
     <h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
     
 </div>
@@ -246,7 +215,7 @@ $stmt->close();
 
 <div style="margin-top: 30px; text-align: center;">
     <a href="browse.php" 
-       style="padding: 10px 20px; background-color: #66bb6a; color: white; text-decoration: none; border-radius: 6px;">
+       style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
         ← Back to Browse Page
     </a>
 </div>

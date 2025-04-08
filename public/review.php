@@ -3,7 +3,6 @@
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
-
 $restaurantID = $_GET['restaurantID'] ?? null;
 
 if (!$restaurantID) {
@@ -25,34 +24,23 @@ if (!$restaurantName) {
     exit();
 }
 
-// Get the restaurant ID from GET parameter
-if (!isset($_GET['restaurantID'])) {
-    echo "Restaurant ID not provided.";
-    exit();
-}
-$restaurantID = $_GET['restaurantID'];
-
-// Store logged-in userID if available
 $userID = $_SESSION['userID'] ?? null;
 
-// Handle form submission (only if user is logged in)
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if ($userID) {
-        $rating = $_POST['rating'];
-        $comment = trim($_POST['comment']);
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
+    $rating = $_POST['rating'];
+    $comment = trim($_POST['comment']);
 
-        if ($rating && $comment) {
-            $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) VALUES (?, ?, ?, ?, CURDATE())";
-            $stmt = $conn->prepare($insertQuery);
-            $stmt->bind_param("iiis", $userID, $restaurantID, $rating, $comment);
-            $stmt->execute();
-            $stmt->close();
+    if ($rating && $comment) {
+        $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
+                        VALUES (?, ?, ?, ?, CURDATE())";
+        $stmt = $conn->prepare($insertQuery);
+        $stmt->bind_param("iiis", $userID, $restaurantID, $rating, $comment);
+        $stmt->execute();
+        $stmt->close();
 
-            header("Location: review.php?restaurantID=$restaurantID");
-            exit();
-        }
-    } else {
-        echo "You must be logged in to submit a review.";
+        header("Location: review.php?restaurantID=$restaurantID");
+        exit();
     }
 }
 
@@ -77,64 +65,84 @@ $result = $stmt->get_result();
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: white;
+            background-color: rgb(89, 169, 255); /* Matching your earlier theme */
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: rgb(253, 204, 211);
             padding: 30px;
+            text-align: center;
+            color: black;
+            font-size: 28px;
+            font-weight: bold;
+            
         }
 
         .container {
-            width: 80%;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2d6a4f;
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .review-form {
             margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
         }
 
         textarea {
             width: 100%;
             padding: 10px;
             height: 100px;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
         }
 
         select, input[type="submit"] {
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid #ccc;
+            margin-top: 10px;
         }
 
         input[type="submit"] {
-            background: #2d6a4f;
+            background: rgb(244, 119, 182);
             color: white;
+            border: none;
             cursor: pointer;
         }
 
-        .review {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
+        input[type="submit"]:hover {
+            background: rgb(237, 102, 169);
         }
 
-        .review .rating {
-            color:rgb(244, 180, 0);
-            font-weight: bold;
+        .review-box {
+            background-color: rgb(248, 222, 235);
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 5px solid rgb(245, 174, 209);
+            border-radius: 8px;
         }
 
-        .review .user {
+        .review-box .user {
             font-weight: bold;
+            font-size: 16px;
             color: #333;
         }
 
-        .review .date {
+        .review-box .rating {
+            color: rgb(244, 180, 0);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .review-box .date {
             font-size: 0.9em;
             color: #777;
         }
@@ -147,49 +155,61 @@ $result = $stmt->get_result();
     </style>
 </head>
 <body>
+
+<div class="header">
+    Reviews for <?= htmlspecialchars($restaurantName) ?>
+</div>
+
 <div class="container">
-    <h1>Reviews for <?php echo htmlspecialchars($restaurantName); ?></h1>
 
     <!-- Review Form -->
     <div class="review-form">
-        <form action="" method="POST">
         <?php if ($userID): ?>
-        <form action="" method="POST">
-            <label for="rating">Rating:</label>
-            <select name="rating" id="rating" required>
-                <option value="">Select</option>
-                <option value="5">5 - Excellent ⭐</option>
-                <option value="4">4 - Good ⭐</option>
-                <option value="3">3 - Okay ⭐</option>
-                <option value="2">2 - Bad ⭐</option>
-                <option value="1">1 - Terrible ⭐</option>
-            </select><br><br>
+            <form action="" method="POST">
+                <label for="rating">Rating:</label>
+                <select name="rating" id="rating" required>
+                    <option value="">Select</option>
+                    <option value="5">5 - Excellent ⭐</option>
+                    <option value="4">4 - Good ⭐</option>
+                    <option value="3">3 - Okay ⭐</option>
+                    <option value="2">2 - Bad ⭐</option>
+                    <option value="1">1 - Terrible ⭐</option>
+                </select><br>
 
-            <label for="comment">Leave a comment:</label>
-            <textarea name="comment" id="comment" placeholder="Write your thoughts..." required></textarea><br>
+                <label for="comment">Leave a comment:</label>
+                <textarea name="comment" id="comment" placeholder="Write your thoughts..." required></textarea>
 
-            <input type="submit" value="Submit Review">
-        </form>
-    <?php else: ?>
-        <p><strong><a href="login.php">Login</a></strong> to submit a review.</p>
-    <?php endif; ?>
+                <input type="submit" value="Submit Review">
+            </form>
+        <?php else: ?>
+            <p><strong><a href="login.php">Login</a></strong> to submit a review.</p>
+        <?php endif; ?>
+    </div>
 
     <hr>
 
-    <!-- Review List -->
+    <!-- Reviews -->
     <?php if ($result->num_rows > 0): ?>
         <?php while ($row = $result->fetch_assoc()): ?>
-            <div class="review">
-                <div class="user"><?php echo htmlspecialchars($row['username']); ?></div>
-                <div class="rating">Rating: <?php echo $row['rating']; ?> ⭐</div>
-                <div class="comment"><?php echo nl2br(htmlspecialchars($row['commentLeft'])); ?></div>
-                <div class="date"><?php echo $row['datePosted']; ?></div>
+            <div class="review-box">
+                <div class="user"><?= htmlspecialchars($row['username']) ?></div>
+                <div class="rating">Rating: <?= $row['rating'] ?> ⭐</div>
+                <div class="comment"><?= nl2br(htmlspecialchars($row['commentLeft'])) ?></div>
+                <div class="date"><?= $row['datePosted'] ?></div>
             </div>
         <?php endwhile; ?>
     <?php else: ?>
         <div class="no-reviews">No reviews yet. Be the first to write one!</div>
     <?php endif; ?>
 </div>
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="restaurant.php?restaurantID=<?= $restaurantID ?>"
+    style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
+    ← Back to Restaurant Page
+    </a>
+</div>
+
 </body>
 </html>
 

@@ -3,7 +3,7 @@ include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
-echo "Current user ID: " . $userID . "<br>";
+
 
 // Get user info
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
@@ -77,8 +77,8 @@ $favCombinedResult = $favCombinedStmt->get_result();
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #e8f5e9;
-            color: #1b5e20;
+            background-color: rgb(89, 169, 255);
+            color:rgb(2, 1, 1);
             padding: 20px;
         }
         .container {
@@ -96,11 +96,11 @@ $favCombinedResult = $favCombinedStmt->get_result();
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 3px solid #66bb6a;
+            border: 3px solid rgb(4, 4, 4);
         }
         h2, h3 {
             text-align: center;
-            color: #2e7d32;
+            color:rgb(2, 2, 2);
         }
         .info p {
             font-size: 16px;
@@ -109,35 +109,37 @@ $favCombinedResult = $favCombinedStmt->get_result();
             display: inline-block;
             margin: 10px 5px;
             padding: 10px 15px;
-            background-color: #66bb6a;
+            background-color: rgb(76, 175, 80);
             color: white;
             text-decoration: none;
             border-radius: 6px;
         }
         .back-btn:hover, .logout-btn:hover {
-            background-color: #388e3c;
+            background-color: rgb(244, 119, 182);
         }
         .reviews {
             margin-top: 25px;
         }
         .review-box {
-            background-color: #f1f8e9;
+            background-color: rgb(206, 241, 250);
             padding: 12px;
             margin-bottom: 15px;
-            border-left: 4px solid #81c784;
+            border-left: 4px solid rgb(245, 174, 209);
         }
         .review-box strong {
-            color: #33691e;
+            color:rgb(10, 10, 10);
+            font-weight: bold
+            
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: #f1f8e9;
+            background-color: rgb(200, 239, 249);
             margin-bottom: 20px;
         }
         th, td {
             padding: 8px;
-            border: 1px solid #c5e1a5;
+            border: 1px solidrgb(0, 0, 0);
             text-align: left;
         }
     </style>
