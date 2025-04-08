@@ -3,6 +3,7 @@ include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
+echo "Current user ID: " . $userID . "<br>";
 
 // Get user info
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
@@ -30,18 +31,19 @@ $favStmt->execute();
 $favStmt->bind_result($favoriteCount);
 $favStmt->fetch();
 $favStmt->close();
+echo "Fav count: $favoriteCount<br>";
 
-// Get user reviews
+// Get user reviews (FIXED query without extra join)
 $reviewSql = "
     SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
     FROM Reviews r 
-    JOIN FavouriteRestaurant fr ON r.restaurantID = fr.restaurantID 
-    JOIN Restaurant res ON fr.restaurantID = res.restaurantID 
+    JOIN Restaurant res ON r.restaurantID = res.restaurantID 
     WHERE r.userID = ?";
 $reviewStmt = $conn->prepare($reviewSql);
 $reviewStmt->bind_param("i", $userID);
 $reviewStmt->execute();
 $reviewResult = $reviewStmt->get_result();
+echo "Reviews found: " . $reviewResult->num_rows . "<br>";
 
 // Get user's dietary preferences
 $dietSql = "
@@ -65,6 +67,7 @@ $favCombinedStmt = $conn->prepare($favCombinedSql);
 $favCombinedStmt->bind_param("i", $userID);
 $favCombinedStmt->execute();
 $favCombinedResult = $favCombinedStmt->get_result();
+echo "Fav dishes found: " . $favCombinedResult->num_rows . "<br>";
 ?>
 
 <!DOCTYPE html>
