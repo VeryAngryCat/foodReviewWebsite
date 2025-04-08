@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST[
         $insStmt->execute();
     }
 
-    exit(); // Stop further output for AJAX call
+    exit();  // Stop further output for AJAX call
 }
 
 // Page rendering starts here
