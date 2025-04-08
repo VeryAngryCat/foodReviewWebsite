@@ -1597,8 +1597,7 @@ ADD CONSTRAINT `dt3_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference
 -- Constraints for table `Reviews`
 --
 ALTER TABLE `Reviews`
-ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE
-SET NULL ON UPDATE CASCADE,
+ADD CONSTRAINT `rest_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `usr_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE
 SET NULL ON UPDATE CASCADE;
 COMMIT;

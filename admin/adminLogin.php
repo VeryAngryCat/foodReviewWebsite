@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Database connection
 include '../includes/dbConn.php';
 
@@ -12,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($uname) || empty($pword)) {
         $error_message = "All fields are required!";
     } else {
-        $sql = "SELECT username, adminPassword FROM Admins WHERE username = ?";
+        $sql = "SELECT adminID, username, adminPassword FROM Admins WHERE username = ?";
 
         // Prevents SQL inection
         $stmt = mysqli_prepare($conn, $sql);
@@ -24,9 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $row = mysqli_fetch_assoc($result);
             $storedPassword = $row["adminPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
             if (password_verify($pword, $storedPassword)) {
+                $_SESSION['adminID'] = $row['adminID'];
                 header("Location: ../admin/dashboard.php");
                 exit();
             } else if ($pword === $storedPassword) { // For legacy plain-text passwords
+                $_SESSION['adminID'] = $row['adminID'];
                 header("Location: ../admin/dashboard.php");
                 exit();
             } else {

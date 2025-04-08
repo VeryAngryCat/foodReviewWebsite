@@ -1,7 +1,7 @@
 <?php
 // Database connection
 include '../includes/dbConn.php';
-session_start();
+include '../includes/authAdmin.php';
 
 // Maintenance mode toggle (Enable/Disable site)
 // Add or remove other admin accounts

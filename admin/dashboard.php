@@ -1,7 +1,7 @@
 <?php
 // Database connection
 include '../includes/dbConn.php';
-session_start();
+include '../includes/authAdmin.php';
 
 // Counts total users
 $totalUsers = "SELECT COUNT(*) AS usTotal FROM users";

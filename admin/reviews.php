@@ -1,7 +1,7 @@
 <?php
 // Database connection
 include '../includes/dbConn.php';
-session_start();
+include '../includes/authAdmin.php';
 // Moderate Reviews
 // Delete Review
 

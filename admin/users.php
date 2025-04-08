@@ -1,7 +1,7 @@
 <?php
 // Database connection
 include '../includes/dbConn.php';
-session_start();
+include '../includes/authAdmin.php';
 
 // View info on a user
 // Disabke user's comments
