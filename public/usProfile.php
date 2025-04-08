@@ -31,7 +31,7 @@ $favStmt->execute();
 $favStmt->bind_result($favoriteCount);
 $favStmt->fetch();
 $favStmt->close();
-echo "Fav count: $favoriteCount<br>";
+
 
 // Get user reviews (FIXED query without extra join)
 $reviewSql = "
@@ -43,7 +43,6 @@ $reviewStmt = $conn->prepare($reviewSql);
 $reviewStmt->bind_param("i", $userID);
 $reviewStmt->execute();
 $reviewResult = $reviewStmt->get_result();
-echo "Reviews found: " . $reviewResult->num_rows . "<br>";
 
 // Get user's dietary preferences
 $dietSql = "
@@ -67,7 +66,7 @@ $favCombinedStmt = $conn->prepare($favCombinedSql);
 $favCombinedStmt->bind_param("i", $userID);
 $favCombinedStmt->execute();
 $favCombinedResult = $favCombinedStmt->get_result();
-echo "Fav dishes found: " . $favCombinedResult->num_rows . "<br>";
+
 ?>
 
 <!DOCTYPE html>
