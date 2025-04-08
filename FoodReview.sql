@@ -31,6 +31,7 @@ DROP TABLE IF EXISTS FavouriteDish;
 DROP TABLE IF EXISTS FavouriteRestaurant;
 DROP TABLE IF EXISTS Restaurant;
 DROP TABLE IF EXISTS RestaurantCuisine;
+DROP TABLE IF EXISTS RestaurantDietary;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS UserPreference;
 DROP TABLE IF EXISTS Users;
@@ -898,6 +899,28 @@ VALUES (4, 2),
   (22, 11);
 -- --------------------------------------------------------
 --
+-- Table structure for table `RestaurantDietary`
+--
+CREATE TABLE `RestaurantDietary` (
+`restaurantID` int(11) DEFAULT NULL,
+`dietID` int(11) DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
+--
+-- Dumping data for table `Reviews`
+--
+INSERT INTO `RestaurantDietary` (`restaurantID`, `dietID`)
+VALUES (1, 3),
+  (1, 5),
+  (2, 1),
+  (2, 4),
+  (3, 1),
+  (3, 6),
+  (4, 2),
+  (4, 3),
+  (5, 1),
+  (5, 2);
+-- --------------------------------------------------------
+--
 -- Table structure for table `Reviews`
 --
 
@@ -1459,6 +1482,12 @@ ALTER TABLE `RestaurantCuisine`
 ADD KEY `rest3_fk_key` (`restaurantID`),
   ADD KEY `csn2_fk_key` (`cuisineID`);
 --
+-- Indexes for table `Dish`
+--
+ALTER TABLE `RestaurantDietary`
+ADD KEY `rest5_fk_key` (`restaurantID`),
+  ADD KEY `dt3_fk_key` (`DietID`);
+--
 -- Indexes for table `Reviews`
 --
 ALTER TABLE `Reviews`
@@ -1558,6 +1587,12 @@ ADD CONSTRAINT `rest2_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restauran
 ALTER TABLE `RestaurantCuisine`
 ADD CONSTRAINT `csn2_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `rest3_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
+--
+-- Constraints for table `RestaurantDietary`
+--
+ALTER TABLE `RestaurantDietary`
+ADD CONSTRAINT `dt3_fk_key` FOREIGN KEY (`dietID`) REFERENCES `DietaryPreference` (`dietID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rest5_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `Reviews`
 --
