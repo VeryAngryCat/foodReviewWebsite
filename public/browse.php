@@ -20,10 +20,9 @@ if (!empty($searchTerm)) {
     $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
 }
 
-// Cuisine filter (with column check)
-$column_check = mysqli_query($conn, "SHOW COLUMNS FROM Restaurant LIKE 'cuisineID'");
-if (mysqli_num_rows($column_check) > 0 && $selectedCuisine > 0) {
-    $where[] = "r.cuisineID = " . $selectedCuisine;
+// JOIN for Cuisine filter
+if ($selectedCuisine > 0) {
+    $query .= " JOIN RestaurantCuisine rc ON r.restaurantID = rc.restaurantID";
 }
 
 // Dietary filter
@@ -43,6 +42,19 @@ $restaurants = mysqli_query($conn, $query);
 if (!$restaurants) {
     die("Query failed: " . mysqli_error($conn));
 }
+
+// WHERE conditions
+$where = [];
+if (!empty($searchTerm)) {
+    $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
+}
+if ($selectedCuisine > 0) {
+    $where[] = "rc.cuisineID = " . $selectedCuisine;
+}
+if ($selectedDiet > 0) {
+    $where[] = "rd.dietID = " . $selectedDiet;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -209,17 +221,23 @@ if (!$restaurants) {
         </form>
     </div>
 
-    <!-- Restaurant List -->
+    <!-- Restaurant Display -->
     <div class="container">
-        <?php if (mysqli_num_rows($restaurants) > 0): ?>
-            <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
-                <?php
-                // Get dietary preferences for this restaurant
-                $dietQuery = "SELECT d.name FROM DietaryPreference d
-                             JOIN RestaurantDietary rd ON d.dietID = rd.dietID
-                             WHERE rd.restaurantID = " . $restaurant['restaurantID'];
-                $dietResult = mysqli_query($conn, $dietQuery);
-                ?>
+        <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
+            <?php
+            // Get cuisine for this restaurant
+            $cuisineQuery = mysqli_query($conn, 
+                "SELECT c.name FROM Cuisine c
+                 JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID
+                 WHERE rc.restaurantID = " . $restaurant['restaurantID']);
+            $cuisine = mysqli_fetch_assoc($cuisineQuery);
+            
+            // Get dietary preferences
+            $dietQuery = mysqli_query($conn,
+                "SELECT d.name FROM DietaryPreference d
+                 JOIN RestaurantDietary rd ON d.dietID = rd.dietID
+                 WHERE rd.restaurantID = " . $restaurant['restaurantID']);
+            ?>
                 <div class="card">
                     <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" style="text-decoration:none; color:inherit;">
                         <h2><?= htmlspecialchars($restaurant['name']) ?></h2>
