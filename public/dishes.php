@@ -1,16 +1,6 @@
 <?php
-session_start();
 include '../includes/dbConn.php';
-
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-// Check if user is logged in
-if (!isset($_SESSION['userID'])) {
-    header("Location: login.php");
-    exit;
-}
+include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
 
