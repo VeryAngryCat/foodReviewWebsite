@@ -39,7 +39,7 @@ $favStmt->close();
 
 // Get user reviews
 $reviewSql = "
-    SELECT r.commentLeft, r.rating, r.datePosted, res.name 
+    SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
     FROM Reviews r 
     JOIN FavouriteRestaurant fr ON r.restaurantID = fr.restaurantID 
     JOIN Restaurant res ON fr.restaurantID = res.restaurantID 
@@ -202,7 +202,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
             if ($reviewResult->num_rows > 0) {
                 while ($row = $reviewResult->fetch_assoc()) {
                     echo "<div class='review-box'>";
-                    echo "<strong>Restaurant:</strong> " . htmlspecialchars($row['name']) . "<br>";
+                    echo "<strong>Restaurant:</strong> " . htmlspecialchars($row['restaurantName']) . "<br>";
                     echo "<strong>Rating:</strong> " . htmlspecialchars($row['rating']) . "/5<br>";
                     echo "<strong>Date:</strong> " . htmlspecialchars($row['datePosted']) . "<br>";
                     echo "<strong>Comment:</strong> " . nl2br(htmlspecialchars($row['commentLeft']));
