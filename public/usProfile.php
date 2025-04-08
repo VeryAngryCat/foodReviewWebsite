@@ -1,7 +1,5 @@
 <?php
 session_start();
-
-// Database connection
 include '../includes/dbConn.php';
 
 // Check if the userID session is set

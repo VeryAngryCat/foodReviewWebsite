@@ -249,7 +249,12 @@ $stmt->close();
     </div>
 </div>
 
-
+<div style="margin-top: 30px; text-align: center;">
+    <a href="browse.php" 
+       style="padding: 10px 20px; background-color: #66bb6a; color: white; text-decoration: none; border-radius: 6px;">
+        ← Back to Browse Page
+    </a>
+</div>
 
 
 
