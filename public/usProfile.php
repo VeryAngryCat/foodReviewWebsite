@@ -1,12 +1,6 @@
 <?php
-session_start();
 include '../includes/dbConn.php';
-
-// Check if the userID session is set
-if (!isset($_SESSION['userID'])) {
-    echo "Session variable 'userID' is not set.";
-    exit();
-}
+include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
 

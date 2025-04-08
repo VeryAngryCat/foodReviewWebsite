@@ -1,8 +1,7 @@
 <?php
-
 // Database connection
 include '../includes/dbConn.php';
-
+include '../includes/authUser.php';
 
 // Fetch all filter options
 $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");

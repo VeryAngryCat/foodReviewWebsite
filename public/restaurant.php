@@ -1,7 +1,7 @@
 <?php
-session_start();
 // Database connection
 include '../includes/dbConn.php';
+include '../includes/authUser.php';
 
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
@@ -18,11 +18,6 @@ if (isset($_GET['restaurantID'])) {
     }
 } else {
     echo "No restaurant ID provided.";
-    exit();
-}
-
-if (!isset($_SESSION['userID'])) {
-    header("Location: login.php");
     exit();
 }
 

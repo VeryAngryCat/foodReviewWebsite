@@ -1,16 +1,9 @@
 <?php
-session_start();
 include '../includes/dbConn.php';
-
+include '../includes/authUser.php';
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
-// Check if user is logged in
-if (!isset($_SESSION['userID'])) {
-    header("Location: login.php");
-    exit;
-}
 
 $userID = $_SESSION['userID'];
 $restaurantID = isset($_GET['restaurantID']) ? (int)$_GET['restaurantID'] : null;
