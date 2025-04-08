@@ -1,16 +1,7 @@
 <?php
 
-session_start();
-
 // Database connection
 include '../includes/dbConn.php';
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    // Redirect to login page if not logged in
-    header("Location: login.php");
-    exit(); // Prevent further execution of the page
-}
 
 
 // Fetch all filter options
