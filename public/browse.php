@@ -138,7 +138,7 @@ if (!$restaurants) {
         }
 
         .diet-tag {
-            background-color: #4CAF50;
+            background-color:rgb(76, 175, 80);
             color: white;
             padding: 3px 8px;
             border-radius: 12px;

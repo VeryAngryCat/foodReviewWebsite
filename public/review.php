@@ -79,7 +79,7 @@ $result = $stmt->get_result();
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f7f7f7;
+            background: white;
             padding: 30px;
         }
 
@@ -127,7 +127,7 @@ $result = $stmt->get_result();
         }
 
         .review .rating {
-            color: #f4b400;
+            color:rgb(244, 180, 0);
             font-weight: bold;
         }
 
