@@ -1,10 +1,11 @@
 <?php
+// Database and authentication connection
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
 
-// Get user info
+// Get user information
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
 $stmt->bind_param("i", $userID);
 $stmt->execute();
@@ -12,11 +13,13 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
+// Show error if user not found
 if (!$user) {
     echo "No user data found for userID: $userID";
     exit();
 }
 
+// Store user info in variables for later use
 $firstName = $user['firstName'];
 $lastName = $user['lastName'];
 $email = $user['email'];
@@ -146,17 +149,19 @@ $favCombinedResult = $favCombinedStmt->get_result();
 <body>
 
     <div class="container">
+        <!-- Profile Picture -->
         <div class="profile-pic">
             <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture">
         </div>
 
+        <!-- User Info -->
         <h2><?php echo htmlspecialchars($firstName); ?>'s Profile</h2>
         <div class="info">
             <p><strong>Full Name:</strong> <?php echo htmlspecialchars($firstName . " " . $lastName); ?></p>
             <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
             <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
             
-
+            <!-- Dietary Preferences -->
             <?php if ($dietResult->num_rows > 0): ?>
                 <p><strong>Dietary Preferences:</strong></p>
                 <ul>
@@ -175,6 +180,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
     
         </div>
 
+        <!-- Favorite Dishes Table -->
         <div class="reviews">
             <h3>Your Favorite Dishes & Restaurants</h3>
             <?php if ($favCombinedResult->num_rows > 0): ?>
@@ -194,6 +200,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
                 <p>You haven't favorited any dishes yet.</p>
             <?php endif; ?>
 
+            <!-- User's Reviews -->
             <h3>Your Reviews</h3>
             <?php 
             if ($reviewResult->num_rows > 0) {
@@ -211,6 +218,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
             ?>
         </div>
 
+        <!-- Navigation Buttons -->
         <div style="text-align: center;">
             <a href="../public/browse.php" class="back-btn">← Back to Browse</a>
             <a href="../public/index.php" class="logout-btn">Logout</a>
