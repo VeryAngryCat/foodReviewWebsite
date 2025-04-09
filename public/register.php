@@ -2,11 +2,11 @@
 // Database connection
 include '../includes/dbConn.php';
 
-// Initialises error and success messages
+// Sets up error and success messages
 $error_message = '';
 $success_message = '';
 
-// Process form submission
+// Check if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get user input
     $firstName = $_POST['firstName'];
@@ -15,23 +15,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check if form inputs are set (avoiding null issues)
+    // Check if any field is empty
     if (empty($firstName) || empty($lastName) || empty($username) || empty($email) || empty($password)) {
         $error_message = "All fields are required!";
     } else {
-        // Validate if username or email already exists
+        // Check if username/email already exists in the database
         $sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "ss", $username, $email);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $count);
-        mysqli_stmt_fetch($stmt);
-        mysqli_stmt_close($stmt);
+        mysqli_stmt_execute($stmt); // Runs the query
+        mysqli_stmt_bind_result($stmt, $count); // Stores the result (0 or 1+)
+        mysqli_stmt_fetch($stmt); // Fetches the result
+        mysqli_stmt_close($stmt); // Closes the query
 
         if ($count > 0) {
             $error_message = "Username or email already exists.";
         } else {
-            // Validates email (must contain @)
+            // // Check if email has '@' (basic validation)
             if (strpos($email, '@') === false) {
                 $error_message = "Email must contain '@'.";
             } else {
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             VALUES (?, ?, ?, ?, ?)";
                     $stmt = mysqli_prepare($conn, $sql);
                     mysqli_stmt_bind_param($stmt, "sssss", $firstName, $lastName, $email, $username, $hashed_password);
-                    $result = mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_execute($stmt); // Runs the INSERT query
 
                     if ($result) {
                         $success_message = "User registered successfully!";
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $error_message = "Error: " . mysqli_error($conn);
                     }
 
-                    mysqli_stmt_close($stmt);
+                    mysqli_stmt_close($stmt);  // Closes the query
                 }
             }
         }
@@ -72,7 +72,7 @@ mysqli_close($conn);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
-    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css"> <!-- Links CSS file for styling -->
 </head>
 <body>
 
@@ -82,7 +82,7 @@ mysqli_close($conn);
         <!-- Form to capture user input -->
         <form action="register.php" method="POST">
             <label for="firstName">First Name</label>
-            <input type="text" id="firstName" name="firstName" required>
+            <input type="text" id="firstName" name="firstName" required> <!-- 'required' means field can't be empty -->
 
             <label for="lastName">Last Name</label>
             <input type="text" id="lastName" name="lastName" required>
@@ -91,22 +91,21 @@ mysqli_close($conn);
             <input type="text" id="username" name="username" required>
 
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" required> <!-- 'type=email' checks for basic email format -->
 
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-
-            <input type="submit" value="Register">
+            <input type="password" id="password" name="password" required> <!-- 'type=password' hides typed characters -->
+            <input type="submit" value="Register"> <!-- Submit button -->
         </form>
 
         <!-- Displays error or success messages -->
         <?php
             if ($error_message) {
-                echo "<p class='error'>$error_message</p>";
+                echo "<p class='error'>$error_message</p>";  // Shows error in red
             }
             if ($success_message) {
-                echo "<p class='success'>$success_message</p>";
-                echo "<a href='login.php' class='login-button'>Continue to Login</a>";
+                echo "<p class='success'>$success_message</p>";   // Shows success in green
+                echo "<a href='login.php' class='login-button'>Continue to Login</a>";  // Link to login page
             }
 
             
