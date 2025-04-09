@@ -122,102 +122,24 @@ if (!$restaurants) {
             background: #fdccd3; padding: 15px; border-radius: 8px; margin: 15px auto;
             width: 90%; max-width: 800px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
-        input, select {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 8px 15px;
-            background-color: rgb(244, 119, 182);  /* Pink button */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-
-        button:hover {
-            background-color: rgb(254, 95, 180);  /* Darker pink on hover */
-        }
-
-        .profile-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
-        .profile-icon img {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;   /* Circular image */
-            border: 2px solid rgb(251, 121, 186);
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
-            gap: 20px; 
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .card { 
-            background-color: rgb(190, 242, 255);  /* Light blue card */
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;    /* Smooth hover effect */
-        }
-
-        .card:hover {
-            transform: translateY(-5px);    /* Lift card on hover */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .card h2 {
-            color: #333;
-            margin-top: 0;
-        }
-
-        .diet-tags {
-            margin: 10px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .diet-tag {
-            background-color:rgb(76, 175, 80);   /* Green tag */
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-         /* "No results" message styling */
-        .no-results {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            margin: 20px auto;
-            max-width: 800px;
-        }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        .card { background: #bef2ff; border-radius: 10px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .profile-icon { position: absolute; top: 20px; right: 20px; }
+        .profile-icon img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #fb79ba; }
+        .diet-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .diet-tag { background: #4caf50; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+        input, select, button { padding: 8px; margin: 5px; border-radius: 4px; }
+        button { background: #f477b6; color: white; border: none; cursor: pointer; }
+        button:hover { background: #fe5fb4; }
+        .table-box { margin: 20px auto; width: 90%; max-width: 1000px; background: pink; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
     </style>
 </head>
 <body>
 
-<!-- Profile Icon -->
-<div class="profile-icon">
-    <a href="usprofile.php">
-        <img src="assets/profile-icon.png" alt="Profile Icon">
-    </a>
-</div>
+<div class="profile-icon"><a href="usprofile.php"><img src="assets/profile-icon.png" alt="Profile"></a></div>
 
 <div class="search-bar">
     <form method="POST">
