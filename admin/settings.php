@@ -50,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 10px;
             position: relative;
         }
-
         .delete-button {
             display: none;
             position: absolute;
@@ -68,28 +67,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .add-admin-btn {
-        font-size: 40px;
-        cursor: pointer;
-        width: 50px;
-        height: 50px;
-        border: 1px solid black;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 50%;
-        margin: 20px auto;
-        transition: background-color 0.3s;
-    }
-    .add-admin-btn:hover {
-        background-color: lightgrey;
-    }
+            font-size: 40px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        .add-admin-btn:hover {
+            background-color: lightgrey;
+        }
 
-    .add-admin-form {
-        display: none;
-        margin-top: 20px;
-        padding: 10px;
-        border: 1px solid black;
-    }
+        .add-admin-form {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid black;
+        }
     </style>
 </head>
 <body>

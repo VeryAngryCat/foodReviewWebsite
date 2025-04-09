@@ -50,11 +50,38 @@ if($reviewID) {
     <title>Manage Reviews</title>
     <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     <style>
-        .container { display: flex; gap: 40px; padding: 20px; height: 75vh; min-height: 75vh;}
-        .comments-list {flex:1; overflow-y: auto; }
-        .comment { border: 1px solid black; padding: 10px; margin-bottom: 10px; cursor: pointer;}
-        .edit-box { flex: 1; border: 1px solid black; padding: 20px; overflow-y: auto;}
-        .search-bar { margin-bottom: 20px; padding: 10px; border-radius: 4px; border-color: grey; }
+        .container {
+            display: flex;
+            gap: 40px;
+            padding: 20px;
+            height: 75vh;
+            min-height: 75vh;
+        }
+
+        .comments-list {
+            flex:1;
+            overflow-y: auto; 
+        }
+        .comment {
+            border: 1px solid black;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .edit-box {
+            flex: 1;
+            border: 1px solid black;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            border-color: grey;
+        }
     </style>
 </head>
     <body>
