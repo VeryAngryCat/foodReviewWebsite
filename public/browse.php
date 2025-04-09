@@ -139,7 +139,7 @@ if (!$restaurants) {
 </head>
 <body>
 
-<div class="profile-icon"><a href="usprofile.php"><img src="assets/profile-icon.png" alt="Profile"></a></div>
+<div class="profile-icon"><a href="usprofile.php"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile"></a></div>
 
 <div class="search-bar">
     <form method="POST">

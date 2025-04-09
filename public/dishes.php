@@ -37,51 +37,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST[
 // Get restaurantID and optional diet filter from the URL
 $restaurantID = isset($_GET['restaurantID']) ? (int)$_GET['restaurantID'] : null;
 $filterDietID = isset($_GET['diet']) ? (int)$_GET['diet'] : null;
-
+// If no restaurant, print error message and exits
 if (!$restaurantID) {
     echo "No restaurant selected.";
     exit;
 }
 
-// Get dietary preferences
+//-----CODE TO GET DIETARY PREFERENCES-----
 $dietQuery = "SELECT dietID, name FROM DietaryPreference";
 $dietResult = mysqli_query($conn, $dietQuery);
 
-// Get dishes for restaurant with optional filter
+//-----CODE TO GET DISHES WITH FILTER-----
+// SQL query to get dishes from specific restaurant with the diet filter
 $dishQuery = "SELECT d.*, dp.name AS dietName 
               FROM Dish d 
               LEFT JOIN DietaryPreference dp ON d.DietID = dp.dietID 
               WHERE d.restaurantID = ?";
 
-$params = [$restaurantID];
-$types = "i";
+$params = [$restaurantID]; // Parameters for binding
+$types = "i"; // Type string 
 
 if ($filterDietID) {
+    // Add dietary preference filter if selected
     $dishQuery .= " AND d.DietID = ?";
     $params[] = $filterDietID;
     $types .= "i";
 }
 
+// Prepare and execute the dish query
 $stmt = mysqli_prepare($conn, $dishQuery);
 mysqli_stmt_bind_param($stmt, $types, ...$params);
 mysqli_stmt_execute($stmt);
 $dishResult = mysqli_stmt_get_result($stmt);
 
-// Get liked dishes by user
+// Get all the liked dishes by user
 $liked = [];
 $likeQuery = "SELECT dishID FROM FavouriteDish WHERE userID = ?";
 $likeStmt = mysqli_prepare($conn, $likeQuery);
 mysqli_stmt_bind_param($likeStmt, "i", $userID);
 mysqli_stmt_execute($likeStmt);
 $likeResult = mysqli_stmt_get_result($likeStmt);
+// Stores all the liked dish IDs in an array for later use
 while ($row = mysqli_fetch_assoc($likeResult)) {
     $liked[] = $row['dishID'];
 }
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE html> <!--HTML-->
 <html>
 <head>
+    <!--CSS STYLING-->
     <style>
         body {
             margin: 0;
@@ -151,13 +156,18 @@ while ($row = mysqli_fetch_assoc($likeResult)) {
     Dishes Available
 </header>
 
-<!-- Dietary Preference Filter -->
+<!-- Filter Form for Dietary Preferences -->
 <form method="GET">
+    <!-- Keep the selected restaurant ID -->
     <input type="hidden" name="restaurantID" value="<?= htmlspecialchars($restaurantID) ?>">
+    <!-- Dropdown filter for dietary preferences -->
     <label><strong>Filter by Dietary Preference:</strong></label>
     <select name="diet" onchange="this.form.submit()">
         <option value="">All</option>
+        <!-- Goes through each diet from the database -->
         <?php while ($diet = mysqli_fetch_assoc($dietResult)) : ?>
+            <!-- Shows diet name as an option -->
+            <!-- If this diet is selected, keep it selected -->
             <option value="<?= $diet['dietID'] ?>" <?= ($filterDietID == $diet['dietID']) ? 'selected' : '' ?>>
                 <?= htmlspecialchars($diet['name']) ?>
             </option>
@@ -172,33 +182,46 @@ while ($row = mysqli_fetch_assoc($likeResult)) {
             <h3><?= htmlspecialchars($dish['name']) ?> - $<?= number_format($dish['price'], 2) ?></h3>
             <p><?= htmlspecialchars($dish['description']) ?></p>
             <p><strong>Diet:</strong> <?= htmlspecialchars($dish['dietName'] ?? 'None') ?></p>
+            <!-- Heart icon for liking/unliking dishes -->
             <span class="heart <?= in_array($dish['dishID'], $liked) ? 'liked' : '' ?>"
                   title="Click to like/unlike"
                   onclick="toggleLike(<?= $dish['dishID'] ?>, this)">❤️</span>
         </div>
     <?php endwhile; ?>
 </div>
+
+<!-- Back to restaurant page button -->
 <div style="margin-top: 30px; text-align: center;">
     <a href="restaurant.php?restaurantID=<?= $restaurantID ?>"
     style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
     ← Back to Restaurant Page
     </a>
 </div>
+
+<!-- JavaScript to handle heart icon toggle -->
 <script>
 function toggleLike(dishID, element) {
     element.style.pointerEvents = "none"; // prevent double clicks
 
+    // Creates a new AJAX request
     const xhr = new XMLHttpRequest();
+    // Sets up the request to send data to dishes.php using POST method
     xhr.open("POST", "dishes.php", true);
+    // Tells the server we're sending form data
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    // When we get a response
     xhr.onload = function () {
         if (xhr.status === 200) {
+            // Toggle heart color (like/unlike)
             element.classList.toggle("liked");
         } else {
+            // Error message
             alert("Something went wrong!");
         }
+        // Allows clicking again
         element.style.pointerEvents = "auto";
     };
+    // Send dishID to PHP for toggling like
     xhr.send("toggleLike=1&dishID=" + dishID);
 }
 </script>
