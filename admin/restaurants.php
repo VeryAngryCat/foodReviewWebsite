@@ -60,7 +60,7 @@ if($restaurantID) {
             $updateStmt = $conn->prepare("UPDATE Restaurant SET name=? WHERE restaurantID=?");
             $updateStmt->bind_param("si", $newName, $restaurantID);
             $updateStmt->execute();
-            header("Location: restaurants.php?restaurantID=$restaurantID");
+            header("Location: ../admin/restaurants.php?restaurantID=$restaurantID");
             exit;
         }
     // Deletes restaurant
@@ -84,7 +84,7 @@ if($restaurantID) {
         <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     </head>
     <body>
-        <form method="get" action="restaurants.php" class="choice">
+        <form method="get" action="../admin/restaurants.php" class="choice">
             <label>Select a Restaurant:</label>
             <select name="restaurantID" onchange="this.form.submit()">
                 <option disabled selected>Select one</option>
