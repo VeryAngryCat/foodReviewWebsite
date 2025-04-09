@@ -41,6 +41,26 @@
         .btn:hover {
             background-color: #2c6e2f;
         }
+        .link-to-admin {
+            position: absolute;
+            bottom:  20px;
+            margin-bottom: 10px;
+            right: 20px;
+        }
+        .link-to-admin a {
+            text-align: center;
+            padding: 10px 20px;
+            background-color: darkblue;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .link-to-admin a:hover {
+            background-color: blue;
+        }
+
     </style>
 </head>
 <body>
@@ -48,6 +68,9 @@
         <h2>Welcome to Food Review</h2>
         <button class="btn" onclick="window.location.href='login.php'">Login</button>
         <button class="btn" onclick="window.location.href='register.php'">Sign Up</button>
+    </div>
+    <div class="link-to-admin">
+        <a href="../admin/adminLogin.php">I am an Admin</a>
     </div>
 </body>
 </html>
