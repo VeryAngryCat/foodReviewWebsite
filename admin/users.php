@@ -109,7 +109,7 @@ if ($userID) {
             <?php while ($user1 = mysqli_fetch_assoc($allUsers)): ?>
 
                 <!-- All the info per user is dumped in each own box -->
-                <div class="user-box">
+                <div class="user-box" onclick="window.location='?userID=<?= $user1['userID'] ?>'">
                     <!-- Link to a particular userID so the side editing menu can be activated -->
                     <a href="?userID=<?= $user1['userID'] ?>" style="text-decoration:none; color:inherit;">
                         <strong>Full Name: </strong><?php echo htmlspecialchars($user1['firstName'] . " " . $user1['lastName']); ?><br>
