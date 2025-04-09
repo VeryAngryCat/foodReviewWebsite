@@ -1,62 +1,44 @@
 <?php
-// Database connection
+// Database and authentication connection
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
+// -----CODE TO GET THE RESTAURANT ID-----
+
+// Using "GET", checks if restaurantId is given in the URL of page
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
+
+    // SQL statemnet to get the restaurent with given ID
     $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $restaurantID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $restaurant = $result->fetch_assoc();
 
+    // Bind the restaurant ID as an integer to the SQL query (tells the database what the parameters are)
+    $stmt->bind_param("i", $restaurantID);
+    // Execute the query
+    $stmt->execute();
+    // Get the result of the query
+    $result = $stmt->get_result();
+    // Fetches the restaurant data as an array
+    $restaurant = $result->fetch_assoc();
+ 
+    // If no restaurant is found, prints error message and exits
     if (!$restaurant) {
         echo "Restaurant not found.";
         exit;
     }
+// If no restaurantID is provided in the URL, prints error message and exits
 } else {
     echo "No restaurant ID provided.";
     exit();
 }
 
+// Gets the currently logged-in user's ID from the session
 $userID = $_SESSION['userID'];
 
-// Check if user already liked this restaurant
-$liked = false;
-$checkLike = $conn->prepare("SELECT * FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
-$checkLike->bind_param("ii", $userID, $restaurantID);
-$checkLike->execute();
-$likeResult = $checkLike->get_result();
-if ($likeResult->num_rows > 0) {
-    $liked = true;
-}
+// -----CODE TO FETCH THE RESTAURANT'S CUISINES-----
 
-// Handle Like Button POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['likeRestaurant'])) {
-    $likeRestaurantID = intval($_POST['restaurantID']); // from hidden input
-
-    // Check if already liked
-    $check = $conn->prepare("SELECT * FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
-    $check->bind_param("ii", $userID, $likeRestaurantID);
-    $check->execute();
-    $result = $check->get_result();
-
-    if ($result->num_rows === 0) {
-        // Not already liked, insert into FavouriteRestaurent
-        $insert = $conn->prepare("INSERT INTO FavouriteRestaurant (userID, restaurantID) VALUES (?, ?)");
-        $insert->bind_param("ii", $userID, $likeRestaurantID);
-        $insert->execute();
-    } else {
-        // Already liked, delete from FavouriteRestaurent (Unlike)
-        $delete = $conn->prepare("DELETE FROM FavouriteRestaurant WHERE userID = ? AND restaurantID = ?");
-        $delete->bind_param("ii", $userID, $likeRestaurantID);
-        $delete->execute();
-    }
-}
-
-// Fetch associated cuisines for this restaurant (only name)
+// SQL query to get cuisine names linked to the current restaurant
 $cuisineQuery = "
     SELECT c.name 
     FROM Cuisine c 
@@ -68,24 +50,20 @@ $cuisineStmt->bind_param("i", $restaurantID);
 $cuisineStmt->execute();
 $cuisineResult = $cuisineStmt->get_result();
 
+// Initializes array to store cuisine names
 $cuisines = [];
 while ($cuisine = $cuisineResult->fetch_assoc()) {
     $cuisines[] = $cuisine['name'];
 }
 
-
-$query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $restaurantID);
-$stmt->execute();
-$result = $stmt->get_result();
-$restaurant = $result->fetch_assoc();
-
+// If restaurant is not found this time, redirect to browse page
 if (!$restaurant) {
     header("Location: browse.php");
     exit();
 }
-// Get average rating from Review table
+
+// -----CODE TO GET AVERAGE RATING OF THE RESTAURANT FROM REVIEWS TABLE-----
+
 $ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?";
 $ratingStmt = $conn->prepare($ratingQuery);
 $ratingStmt->bind_param("i", $restaurantID);
@@ -93,21 +71,21 @@ $ratingStmt->execute();
 $ratingResult = $ratingStmt->get_result();
 $ratingData = $ratingResult->fetch_assoc();
 
-$averageRating = $ratingData['average_rating'];
+$averageRating = $ratingData['average_rating']; // Saves average rating to a variable
 
 
-
-
-
-$stmt->close();
+$stmt->close(); // Close the statement 
 ?>
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
+<!--HTML-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($restaurant['name']); ?> - Details</title>
+
+    <!--CSS STYLING FOR THE PAGE-->
     <style>
         body {
             margin: 0;
@@ -182,22 +160,24 @@ $stmt->close();
         
     </style>
 </head>
-<body>
 
+<body>
+<!-- Header with restaurant name -->
 <div class="header">
-    
     <h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
-    
 </div>
 
+<!-- Main content -->
 <div class="container">
     <div class="restaurant-info">
         <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p>
         <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p>
-        <!-- Display Cuisines (Only Names) -->
+        
+        <!-- List of cuisines -->
         <p><span class="highlight">Cuisines:</span>
             <?php echo implode(", ", $cuisines); ?>
         </p>
+        <!-- Show average rating -->
         <p><strong>Average Rating:</strong>
             <?php 
             echo $averageRating !== null 
@@ -207,22 +187,24 @@ $stmt->close();
         </p>
     </div>
 
+    <!-- Navigation Buttons -->
     <div class="btn-container">
         <a href="dishes.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Dishes</a>
         <a href="review.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Reviews</a>
     </div>
 </div>
 
+<!-- Back to Browse page -->
 <div style="margin-top: 30px; text-align: center;">
     <a href="browse.php" 
        style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
         ← Back to Browse Page
     </a>
 </div>
-
-
-
 </body>
 </html>
 
-<?php $conn->close(); ?>
+<?php
+// Close DB connection
+ $conn->close(); 
+?>
