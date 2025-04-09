@@ -84,10 +84,11 @@ if($restaurantID) {
         <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     </head>
     <body>
+        <h1>Manage Restaurants</h1>
         <form method="get" action="../admin/restaurants.php" class="choice">
             <label>Select a Restaurant:</label>
             <select name="restaurantID" onchange="this.form.submit()">
-                <option disabled selected>Select one</option>
+                <option disabled selected>Select a restaurant</option>
                 <?php while ($row = $allRestaurants->fetch_assoc()): ?>
                     <option value="<?= $row['restaurantID'] ?>" <?= isset($restaurantID) && $restaurantID == $row['restaurantID'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($row['name']) ?>
