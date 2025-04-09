@@ -176,9 +176,9 @@ if (!$restaurants) {
 </div>
 
 <div class="buttons-bar">
-    <button onclick="window.location.href='browse.php?query=topRated'">Top 5 Highest Rated Restaurants</button>
-    <button onclick="window.location.href='browse.php?query=popularDishes'">Most Popular Dishes by Dietary Preferences</button>
-    <button onclick="window.location.href='browse.php?query=diverseRestaurants'">Most Diverse Restaurants</button>
+    <button onclick="window.location.href='browse.php?query=topRated'">1. Top 5 Highest Rated Restaurants</button>
+    <button onclick="window.location.href='browse.php?query=popularDishes'">2. Most Popular Dishes by Dietary Preferences</button>
+    <button onclick="window.location.href='browse.php?query=diverseRestaurants'">3. Most Diverse Restaurants</button>
 </div>
 
 <?php if ($specialResults): ?>
