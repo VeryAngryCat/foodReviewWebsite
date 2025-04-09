@@ -47,18 +47,18 @@ if($reviewID) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Comments</title>
+    <title>Manage Reviews</title>
     <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     <style>
-        .container { display: flex; gap: 40px; padding: 40px; }
-        .comments-list {flex:1;}
-        .comment { border: 1px solid black; padding: 10px; margin-bottom: 10px; cursor: pointer; }
-        .edit-box { flex: 1; border: 1px solid black; padding: 20px;}
+        .container { display: flex; gap: 40px; padding: 20px; height: 75vh; min-height: 75vh;}
+        .comments-list {flex:1; overflow-y: auto; }
+        .comment { border: 1px solid black; padding: 10px; margin-bottom: 10px; cursor: pointer;}
+        .edit-box { flex: 1; border: 1px solid black; padding: 20px; overflow-y: auto;}
         .search-bar { margin-bottom: 20px; padding: 10px; border-radius: 4px; border-color: grey; }
     </style>
 </head>
     <body>
-        <h1>Manage Comments</h1>
+        <h1>Manage Reviews</h1>
 
         <form method="post" class="search-bar">
             <input type="text" name="search" placeholder="Search comment" value="<?= htmlspecialchars($searchTerm) ?>">
@@ -77,7 +77,7 @@ if($reviewID) {
                     </div>
                 <?php endwhile;?>
             </div>
-            
+
             <?php if (isset($review) && $review):?>
                 <div class="edit-box">
                     <h2>Edit Comment</h2>

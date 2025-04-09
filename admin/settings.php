@@ -3,9 +3,8 @@
 include '../includes/dbConn.php';
 include '../includes/authAdmin.php';
 
-// Maintenance mode toggle (Enable/Disable site)
 // Add or remove other admin accounts
-// Set user roles (Admin, Editor, Viewer)
+// Set user roles (Admin, User)
 
 // Closes the database connection
 mysqli_close($conn);

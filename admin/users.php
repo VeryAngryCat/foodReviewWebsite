@@ -70,6 +70,7 @@ if ($userID) {
     </style>
 </head>
 <body>
+    <h1>Manage Users</h1>
     <form method="post" class="search-bar">
         <input type="text" name="search" placeholder="Search user" value="<?= htmlspecialchars($searchTerm) ?>">
         <button type="submit">Search</button>
