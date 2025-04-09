@@ -101,7 +101,7 @@ if (!$restaurants) {
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            border: 2px solid rgb(251, 121, 186);
+            border: 2px solid rgb(4, 4, 4);
         }
 
         .container {
@@ -154,6 +154,8 @@ if (!$restaurants) {
             margin: 20px auto;
             max-width: 800px;
         }
+
+
     </style>
 </head>
 <body>
@@ -161,7 +163,7 @@ if (!$restaurants) {
 <!-- Profile Icon -->
 <div class="profile-icon">
     <a href="usprofile.php">
-        <img src="assets/profile-icon.png" alt="Profile Icon">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Icon">
     </a>
 </div>
 
