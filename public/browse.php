@@ -22,8 +22,7 @@ if ($buttonQuery === 'topRated') {
         SELECT 
             r.name AS restaurant_name, 
             c.name AS cuisine_type, 
-            AVG(rev.rating) AS average_rating,
-            COUNT(rev.reviewID) AS review_count
+            AVG(rev.rating) AS average_rating
         FROM 
             Restaurant r
         JOIN 
@@ -35,7 +34,7 @@ if ($buttonQuery === 'topRated') {
         GROUP BY 
             r.restaurantID, c.name
         ORDER BY 
-            average_rating DESC, review_count DESC
+            average_rating DESC
         LIMIT 5
     ");
 } elseif ($buttonQuery === 'popularDishes') {
