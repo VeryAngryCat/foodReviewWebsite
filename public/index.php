@@ -47,7 +47,7 @@
     <div class="container">
         <h2>Welcome to Food Review</h2>
         <button class="btn" onclick="window.location.href='login.php'">Login</button>
-        <button class="btn" onclick="window.location.href='register.php'">Signup</button>
+        <button class="btn" onclick="window.location.href='register.php'">Sign Up</button>
     </div>
 </body>
 </html>

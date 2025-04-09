@@ -60,7 +60,7 @@ if($restaurantID) {
             $updateStmt = $conn->prepare("UPDATE Restaurant SET name=? WHERE restaurantID=?");
             $updateStmt->bind_param("si", $newName, $restaurantID);
             $updateStmt->execute();
-            header("Location: restaurants.php?restaurantID=$restaurantID");
+            header("Location: ../admin/restaurants.php?restaurantID=$restaurantID");
             exit;
         }
     // Deletes restaurant
@@ -84,7 +84,7 @@ if($restaurantID) {
         <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     </head>
     <body>
-        <form method="get" action="restaurants.php">
+        <form method="get" action="../admin/restaurants.php" class="choice">
             <label>Select a Restaurant:</label>
             <select name="restaurantID" onchange="this.form.submit()">
                 <option disabled selected>Select one</option>
@@ -96,21 +96,23 @@ if($restaurantID) {
             </select>
         </form>
         <?php if (isset($restaurantID)): ?>
-            <h1><?= htmlspecialchars($restaurant['name']) ?></h1>
-            <div class="stats">
-                <div class="stat-card">Total Reviews: <?= $reviewStats['totalReviews'] ?></div>
-                <div class="stat-card">Avg Rating: <?= number_format($reviewStats['avgRating'], 1) ?>/5</div>
-                <div class="stat-card">Total Dishes: <?= $dishStats['totalDishes'] ?></div>
-                <div class="stat-card">Operational Status: <?= $statusStats['operationStatus'] ?></div>
-            </div>
-            <form method="post" class="edit-delete-form">
-                <label for="name">Edit Restaurant Name:</label>
-                <input type="text" id="name" name="name" value="<?= htmlspecialchars($restaurant['name']) ?>">
-                <div class="form-buttons">
-                    <button type="submit" name="edit" class="edit-button">Save Changes</button>
-                    <button type="submit" name="delete" class="delete-button" onclick="return confirm('Delete Restaurant?')">Delete Restaurant</button>
+            <div class="container" style="margin-top: 200px; width: 75vw;">
+                <h1 style="padding-top: 20px; padding-bottom: 100px;"><?= htmlspecialchars($restaurant['name']) ?></h1>
+                <div class="stats">
+                    <div class="stat-card">Total Reviews: <?= $reviewStats['totalReviews'] ?></div>
+                    <div class="stat-card">Avg Rating: <?= number_format($reviewStats['avgRating'], 1) ?>/5</div>
+                    <div class="stat-card">Total Dishes: <?= $dishStats['totalDishes'] ?></div>
+                    <div class="stat-card">Operational Status: <?= $statusStats['operationStatus'] ?></div>
                 </div>
-            </form>
+                <form method="post" class="edit-delete-form">
+                    <label for="name">Edit Restaurant Name:</label>
+                    <input type="text" id="name" name="name" value="<?= htmlspecialchars($restaurant['name']) ?>">
+                    <div class="form-buttons">
+                        <button type="submit" name="edit" class="edit-button">Save Changes</button>
+                        <button type="submit" name="delete" class="delete-button" onclick="return confirm('Delete Restaurant?')">Delete Restaurant</button>
+                    </div>
+                </form>
+            </div>
         <?php endif; ?>
         <?php // Closes the database connection
         mysqli_close($conn);

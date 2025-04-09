@@ -33,7 +33,7 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
     <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="margin-top: 100px;">
         <h1>Welcome Administrator!</h1>
         <div class="class-menu">
             <a href="restaurants.php">Manage Restaurants</a>
@@ -42,7 +42,7 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
             <a href="settings.php">Settings</a>
         </div>
     </div>
-    <div class="stats">
+    <div class="stats" style="margin-top: 10vh;">
         <!-- Total users, restaurants, reviews -->
         <div class="stat-card">
             <h2>
@@ -69,5 +69,6 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
             </h2>
         </div>
     </div>
+    <a href="../admin/adminLogin.php" class="logout-button">Logout</a>
 </body>
 </html>
