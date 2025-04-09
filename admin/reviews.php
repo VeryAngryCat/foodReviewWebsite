@@ -13,16 +13,15 @@ $allReviews = $conn->query("SELECT reviewID, datePosted, rating, commentLeft FRO
 $selectedReview = null;
 $reviewID = $_GET['reviewID'] ?? null;
 
-// Views info on a review
-
 if($reviewID) {
     $stmt = $conn->prepare("SELECT * FROM Reviews WHERE reviewID = ?");
     $stmt->bind_param("i", $reviewID);
     $stmt->execute();
     $result = $stmt->get_result();
     $review = $result->fetch_assoc();
-
+    $review1 = $result->fetch_assoc();
     // Edits name of review
+
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['edit'])) {
             $newComment = $_POST['comment'];
@@ -69,21 +68,21 @@ if($reviewID) {
 
         <div class="container">
             <div class="comments-list">
-                <?php while ($review = mysqli_fetch_assoc($allReviews)): ?>
+                <?php while ($review1 = mysqli_fetch_assoc($allReviews)): ?>
                     <div class="comment">
-                        <a href="?reviewID=<?= $review['reviewID'] ?>" style="text-decoration:none; color:inherit;">
-                            <?= htmlspecialchars($review['datePosted']) ?><br>
-                            Rating: <?= htmlspecialchars($review['rating']) ?>/5<br>
-                            <?= htmlspecialchars($review['commentLeft']) ?>
+                        <a href="?reviewID=<?= $review1['reviewID'] ?>" style="text-decoration:none; color:inherit;">
+                            <?= htmlspecialchars($review1['datePosted']) ?><br>
+                            Rating: <?= htmlspecialchars($review1['rating']) ?>/5<br>
+                            <?= htmlspecialchars($review1['commentLeft']) ?>
                         </a>
                     </div>
                 <?php endwhile; ?>
             </div>
-            <?php if ($selectedReview): ?>
+            <?php if (isset($review) && $review):?>
                 <div class="edit-box">
                     <h2>Edit Comment</h2>
                     <form method="post">
-                        <textarea name="comment" rows="5" cols="40"><?= htmlspecialchars($selectedReview['commentLeft']) ?></textarea>
+                        <textarea name="comment" rows="5" cols="40"><?= htmlspecialchars($review['commentLeft'] ?? '') ?></textarea>
                         <br><br>
                         <button type="submit" name="edit">Save</button>
                         <button type="submit" name="delete" onclick="return confirm('Delete this comment?')">Delete</button>
