@@ -69,5 +69,6 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
             </h2>
         </div>
     </div>
+    <a href="../admin/adminLogin.php" class="logout-button">Logout</a>
 </body>
 </html>

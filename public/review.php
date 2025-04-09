@@ -65,7 +65,7 @@ $result = $stmt->get_result();
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: rgb(89, 169, 255); /* Matching your earlier theme */
+            background-color: rgb(89, 169, 255);
             margin: 0;
             padding: 0;
         }
@@ -182,7 +182,7 @@ $result = $stmt->get_result();
                 <input type="submit" value="Submit Review">
             </form>
         <?php else: ?>
-            <p><strong><a href="login.php">Login</a></strong> to submit a review.</p>
+            <p><strong><a href="../public/login.php">Login</a></strong> to submit a review.</p>
         <?php endif; ?>
     </div>
 

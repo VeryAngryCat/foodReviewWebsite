@@ -4,7 +4,6 @@ include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
 
-
 // Get user info
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
 $stmt->bind_param("i", $userID);
@@ -213,8 +212,8 @@ $favCombinedResult = $favCombinedStmt->get_result();
         </div>
 
         <div style="text-align: center;">
-            <a href="browse.php" class="back-btn">← Back to Browse</a>
-            <a href="index.php" class="logout-btn">Logout</a>
+            <a href="../public/browse.php" class="back-btn">← Back to Browse</a>
+            <a href="../public/index.php" class="logout-btn">Logout</a>
         </div>
     </div>
 
