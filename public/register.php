@@ -106,7 +106,10 @@ mysqli_close($conn);
             }
             if ($success_message) {
                 echo "<p class='success'>$success_message</p>";
+                echo "<a href='login.php' class='login-button'>Continue to Login</a>";
             }
+
+            
         ?>
     </div>
 
