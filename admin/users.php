@@ -4,7 +4,6 @@ include '../includes/dbConn.php';
 include '../includes/authAdmin.php';
 
 // Views info on a user
-// Disables user's comments
 // Deletes user
 // User info
 
@@ -12,11 +11,10 @@ include '../includes/authAdmin.php';
 $searchTerm = $_POST['search'] ?? '';
 $searchSql = $searchTerm ? "WHERE firstName LIKE '%$searchTerm%' OR lastName LIKE '%$searchTerm%' OR email LIKE '%$searchTerm%' OR username LIKE '%$searchTerm%'" : '';
 
-// Get all users
-$users = $conn->query("SELECT userID, firstName, lastName, email, username FROM Users $searchSql");
+// Gets all users
 $allUsers = $conn->query("SELECT userID, firstName, lastName, email, username FROM Users $searchSql");
 
-// View selected user
+// Views selected user
 $userID = $_GET['userID'] ?? null;
 $user = null;
 
@@ -27,10 +25,9 @@ if ($userID) {
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
-    $user1 = $result->fetch_assoc();
+    $user1 = $result->fetch_assoc(); // Temporaryy variable to use in the while loop
 
-    // For user comments
-    // Get user reviews (FIXED query without extra join)
+    // Gets user reviews
     $reviewSql = "
         SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
         FROM Reviews r 
@@ -41,7 +38,7 @@ if ($userID) {
     $reviewStmt->execute();
     $reviewResult = $reviewStmt->get_result();
 
-    // Handles user delete
+    // Handles deletion of
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['deleteUser'])) {
             $deleteStmt = $conn->prepare("DELETE FROM Users WHERE userID=?");
