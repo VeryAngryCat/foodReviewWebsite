@@ -153,6 +153,25 @@ button {
     background-color: blue;
 }
 
+.back-to-dashboard {
+    position: absolute;
+    top: 50px;
+    margin-top: 10px;
+}
+.back-to-dashboard a {
+    text-align: center;
+    padding: 10px 20px;
+    background-color: darkblue;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.back-to-dashboard a:hover {
+    background-color: blue;
+}
+
 @media (max-width: 600px) {
     .class-menu {
         grid-template-columns: repeat(1, 1fr);

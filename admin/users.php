@@ -105,6 +105,9 @@ if ($userID) {
             </div>
         <?php endif; ?>
     </div>
+    <div class="back-to-dashboard">
+        <a href="../admin/dashboard.php">← Back to Dashboard</a>
+    </div>
     <?php
     // Closes the database connection
     mysqli_close($conn);

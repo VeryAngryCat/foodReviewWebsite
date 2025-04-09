@@ -3,13 +3,13 @@
 include '../includes/dbConn.php';
 include '../includes/authAdmin.php';
 
-// Add or remove other admin accounts
+// This is to add or remove other admin accounts
 
 // Search box for admins
 $searchTerm = $_POST['search'] ?? '';
 $searchSql = $searchTerm ? "WHERE username LIKE '%$searchTerm%'" : '';
 
-// Get all admins
+// Gets all admins
 $allAdmins = $conn->query("SELECT adminID, username, adminPassword FROM Admins $searchSql");
 
 // Handles admin account delete
@@ -132,6 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 form.style.display = form.style.display === 'none' ? 'block' : 'none';
             }
         </script>
+    </div>
+    <div class="back-to-dashboard">
+        <a href="../admin/dashboard.php">← Back to Dashboard</a>
+    </div>
     <?php
     // Closes the database connection
     mysqli_close($conn);
