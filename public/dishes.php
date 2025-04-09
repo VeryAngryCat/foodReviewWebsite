@@ -1,14 +1,17 @@
 <?php
+// Database and authentication connection
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
+// Get the logged-in user's ID from session
 $userID = $_SESSION['userID'];
 
-// Handle heart icon toggle (like/unlike)
+//-----CODE TO HANDLE HEART ICON TOGGLE-----
+// When icon is clicked for like/unlike
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST['dishID'])) {
-    $dishID = (int)$_POST['dishID'];
+    $dishID = (int)$_POST['dishID']; // Ensures dishID is an integer
 
-    // Check if already liked
+    // Checks if user already liked the dish
     $checkSql = "SELECT * FROM FavouriteDish WHERE userID = ? AND dishID = ?";
     $checkStmt = $conn->prepare($checkSql);
     $checkStmt->bind_param("ii", $userID, $dishID);
@@ -16,21 +19,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST[
     $checkResult = $checkStmt->get_result();
 
     if ($checkResult->num_rows > 0) {
-        // Unlike (delete from favourites)
+        // Unlike it from Favourite Dish table
         $delStmt = $conn->prepare("DELETE FROM FavouriteDish WHERE userID = ? AND dishID = ?");
         $delStmt->bind_param("ii", $userID, $dishID);
         $delStmt->execute();
     } else {
-        // Like (insert into favourites)
+        // If not liked, add it to Favourite Dish table
         $insStmt = $conn->prepare("INSERT INTO FavouriteDish (userID, dishID) VALUES (?, ?)");
         $insStmt->bind_param("ii", $userID, $dishID);
         $insStmt->execute();
     }
 
-    exit();  // Stop further output for AJAX call
+    exit();  // Stop further output
+    
 }
 
-// Page rendering starts here
+// Get restaurantID and optional diet filter from the URL
 $restaurantID = isset($_GET['restaurantID']) ? (int)$_GET['restaurantID'] : null;
 $filterDietID = isset($_GET['diet']) ? (int)$_GET['diet'] : null;
 
