@@ -4,41 +4,34 @@ include '../includes/dbConn.php';
 include '../includes/authAdmin.php';
 
 // Add or remove other admin accounts
-// Views info on a user
-// Disables user's comments
-// Deletes user
-// User info
 
 // Search box for admins
 $searchTerm = $_POST['search'] ?? '';
 $searchSql = $searchTerm ? "WHERE username LIKE '%$searchTerm%'" : '';
 
 // Get all admins
-$allAdmins = $conn->query("SELECT username, adminPassword FROM Users $searchSql");
+$allAdmins = $conn->query("SELECT adminID, username, adminPassword FROM Admins $searchSql");
 
-// View selected user
-$userID = $_GET['userID'] ?? null;
-$user = null;
+// Handles admin account delete
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['deleteAdminID'])) {
+        $deleteID = $_POST['deleteAdminID'];
+        $deleteStmt = $conn->prepare("DELETE FROM Admins WHERE adminID=?");
+        $deleteStmt->bind_param("i", $deleteID);
+        $deleteStmt->execute();
+        header("Location: ../admin/settings.php");
+        exit;
+    }
 
-if ($userID) {
-    // Gets user info
-    $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
-    $stmt->bind_param("i", $userID);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $user1 = $result->fetch_assoc();
-
-
-    // Handles admin account delete
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if (isset($_POST['deleteUser'])) {
-            $deleteStmt = $conn->prepare("DELETE FROM Admins WHERE adminID=?");
-            $deleteStmt->bind_param("i", $userID);
-            $deleteStmt->execute();
-            header("Location: ../admin/settings.php");
-            exit;
-        }
+    if (isset($_POST['add-button'])) {
+        $username = $_POST['username'];
+        $password = $_POST['adminPassword'];
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $insertStmt = $conn->prepare("INSERT INTO Admins (username, adminPassword) VALUES (?, ?)");
+        $insertStmt->bind_param("ss", $username, $hashedPassword);
+        $insertStmt->execute();
+        header("Location: ../admin/settings.php");
+        exit;
     }
 }
 ?>
@@ -48,45 +41,97 @@ if ($userID) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users</title>
+    <title>Manage Admins</title>
     <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
     <style>
-        .container { display: flex; gap: 40px; padding: 40px; height: 75vh}
-        .users-list {flex:1; overflow-y: auto; border: 1px solid black; padding: 5px;}
-        .user-box { border: 1px solid black; padding: 20px; margin-bottom: 10px; cursor: pointer; word-wrap: break-word;}
-        .edit-box { flex: 1; border: 1px solid black; padding: 20px; overflow-y: auto;}
-        .search-bar { margin-bottom: 20px; padding: 10px; border-radius: 4px; border-color: grey; }
+        .admin-box {
+            border: 1px solid black;
+            padding: 20px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .delete-button {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .admin-box:hover .delete-button {
+            display: block;
+        }
+
+        .add-admin-btn {
+        font-size: 40px;
+        cursor: pointer;
+        width: 50px;
+        height: 50px;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        margin: 20px auto;
+        transition: background-color 0.3s;
+    }
+    .add-admin-btn:hover {
+        background-color: lightgrey;
+    }
+
+    .add-admin-form {
+        display: none;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid black;
+    }
     </style>
 </head>
 <body>
-    <h1>Manage Users</h1>
+    <h1>Set Admin Privileges</h1>
     <form method="post" class="search-bar">
-        <input type="text" name="search" placeholder="Search user" value="<?= htmlspecialchars($searchTerm) ?>">
+        <input type="text" name="search" placeholder="Search admin" value="<?= htmlspecialchars($searchTerm) ?>">
         <button type="submit">Search</button>
     </form>
 
     <div class="container">
-        <div class="users-list">
-            <?php while ($user1 = mysqli_fetch_assoc($allUsers)): ?>
-                <div class="user-box">
-                    <a href="?userID=<?= $user1['userID'] ?>" style="text-decoration:none; color:inherit;">
-                        <strong>Full Name: </strong><?php echo htmlspecialchars($user1['firstName'] . " " . $user1['lastName']); ?><br>
-                        <strong>Email: </strong><?php echo htmlspecialchars($user1['email']); ?><br>
-                        <strong>Username: </strong><?php echo htmlspecialchars($user1['username']); ?>
-                    </a>
+        <div class="admins-list">
+            <?php while ($admin = $allAdmins->fetch_assoc()): ?>
+                <div class="admin-box">
+                    <div class="admin-info">
+                        <strong>Username: </strong><?= htmlspecialchars($admin['username']); ?><br>
+                        <strong>Password: </strong><?= htmlspecialchars($admin['adminPassword']); ?>
+                    </div>
+                    <form method="post" class="delete-form">
+                        <input type="hidden" name="deleteAdminID" value="<?= $admin['adminID'] ?>">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
                 </div>
-            <?php endwhile;?>
+            <?php endwhile; ?>
+            
+            <div class="add-admin-btn" onclick="toggleAddAdminForm()">+</div>
+        </div>
+        <div class="add-admin-form" id="admin-form-id">
+            <form method="post">
+                <label>Username:</label><br>
+                <input type="text" name="username" required><br><br>
+                <label>Password:</label><br>
+                <input type="password" name="adminPassword" required><br><br>
+                <button type="submit" name="add-button">Add Admin</button>
+            </form>
         </div>
 
-        <?php if (isset($user) && $user): ?>
-            <div class="edit-box">
-                <form method="post">
-                    <button type="submit" class="delete-button" name="deleteUser" onclick="return confirm('Delete this user?')">Delete User</button>
-                </form>
-                <h2>Reviews by user <?=htmlspecialchars($user['firstName']);?> <?=htmlspecialchars($user['lastName']);?></h2>
-            </div>
-        <?php endif; ?>
-    </div>
+        <script>
+            function toggleAddAdminForm() {
+                var form = document.getElementById('admin-form-id');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            }
+        </script>
     <?php
     // Closes the database connection
     mysqli_close($conn);
