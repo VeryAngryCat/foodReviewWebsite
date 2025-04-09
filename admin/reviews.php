@@ -10,7 +10,6 @@ $searchSql = $searchTerm ? "WHERE commentLeft LIKE '%$searchTerm%'" : '';
 // Delete Review
 
 $allReviews = $conn->query("SELECT reviewID, datePosted, rating, commentLeft FROM Reviews $searchSql");
-$selectedReview = null;
 $reviewID = $_GET['reviewID'] ?? null;
 
 if($reviewID) {
@@ -76,8 +75,9 @@ if($reviewID) {
                             <?= htmlspecialchars($review1['commentLeft']) ?>
                         </a>
                     </div>
-                <?php endwhile; ?>
+                <?php endwhile;?>
             </div>
+            
             <?php if (isset($review) && $review):?>
                 <div class="edit-box">
                     <h2>Edit Comment</h2>

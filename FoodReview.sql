@@ -25,7 +25,6 @@ DROP TABLE IF EXISTS Admins;
 DROP TABLE IF EXISTS Cuisine;
 DROP TABLE IF EXISTS DietaryPreference;
 DROP TABLE IF EXISTS Dish;
-DROP TABLE IF EXISTS FavouriteCuisine;
 DROP TABLE IF EXISTS FavouriteDiet;
 DROP TABLE IF EXISTS FavouriteDish;
 DROP TABLE IF EXISTS FavouriteRestaurant;
@@ -610,32 +609,6 @@ VALUES (
     1,
     2
   );
--- --------------------------------------------------------
---
--- Table structure for table `FavouriteCuisine`
---
-
-CREATE TABLE `FavouriteCuisine` (
-  `userID` int(11) NOT NULL,
-  `cuisineID` int(11) NOT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
---
--- Dumping data for table `FavouriteCuisine`
---
-
-INSERT INTO `FavouriteCuisine` (`userID`, `cuisineID`)
-VALUES (6, 3),
-  (5, 3),
-  (5, 4),
-  (11, 11),
-  (13, 5),
-  (3, 1),
-  (15, 9),
-  (16, 6),
-  (10, 6),
-  (1, 5),
-  (2, 1),
-  (2, 10);
 -- --------------------------------------------------------
 --
 -- Table structure for table `FavouriteDiet`
@@ -1447,12 +1420,6 @@ ADD PRIMARY KEY (`dishID`),
   ADD KEY `rest1_fk_key` (`restaurantID`),
   ADD KEY `dt2_fk_key` (`DietID`);
 --
--- Indexes for table `FavouriteCuisine`
---
-ALTER TABLE `FavouriteCuisine`
-ADD KEY `csn3_fk_key` (`cuisineID`),
-  ADD KEY `usr5_fk_key` (`userID`);
---
 -- Indexes for table `FavouriteDiet`
 --
 ALTER TABLE `FavouriteDiet`
@@ -1557,12 +1524,6 @@ ADD CONSTRAINT `dt2_fk_key` FOREIGN KEY (`DietID`) REFERENCES `DietaryPreference
 SET NULL ON UPDATE
 SET NULL,
   ADD CONSTRAINT `rest1_fk_key` FOREIGN KEY (`restaurantID`) REFERENCES `Restaurant` (`restaurantID`) ON DELETE CASCADE ON UPDATE CASCADE;
---
--- Constraints for table `FavouriteCuisine`
---
-ALTER TABLE `FavouriteCuisine`
-ADD CONSTRAINT `csn3_fk_key` FOREIGN KEY (`cuisineID`) REFERENCES `Cuisine` (`cuisineID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `usr5_fk_key` FOREIGN KEY (`userID`) REFERENCES `Users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE;
 --
 -- Constraints for table `FavouriteDiet`
 --
