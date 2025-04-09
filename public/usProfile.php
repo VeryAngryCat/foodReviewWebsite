@@ -155,7 +155,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
             <p><strong>Full Name:</strong> <?php echo htmlspecialchars($firstName . " " . $lastName); ?></p>
             <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
             <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
-            <p><strong>Saved Favorites:</strong> <?php echo $favoriteCount; ?></p>
+            
 
             <?php if ($dietResult->num_rows > 0): ?>
                 <p><strong>Dietary Preferences:</strong></p>
