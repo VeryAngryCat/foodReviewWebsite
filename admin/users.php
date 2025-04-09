@@ -3,10 +3,6 @@
 include '../includes/dbConn.php';
 include '../includes/authAdmin.php';
 
-// Views info on a user
-// Deletes user
-// User info
-
 $searchTerm = $_POST['search'] ?? ''; // Search box for users to enter part of username/name/email
 $searchSql = $searchTerm ? "WHERE firstName LIKE '%$searchTerm%' OR lastName LIKE '%$searchTerm%' OR email LIKE '%$searchTerm%' OR username LIKE '%$searchTerm%'" : '';
 
@@ -140,7 +136,7 @@ if ($userID) {
                 
                 <!-- If there are reviews present for the user and they are not NULL, they are shown -->
                 <?php if ($reviewResult && $reviewResult->num_rows > 0): ?>
-                    <?php while ($rev1 = $reviewResult->fetch_assoc()): ?>
+                    <?php while ($rev = $reviewResult->fetch_assoc()): ?>
                         <br><br><strong>Restaurant:</strong> <?= htmlspecialchars($rev['restaurantName']) ?><br>
                         <strong>Rating:</strong> <?= htmlspecialchars($rev['rating']) ?>/5<br>
                         <strong>Date:</strong> <?= htmlspecialchars($rev['datePosted']) ?><br>

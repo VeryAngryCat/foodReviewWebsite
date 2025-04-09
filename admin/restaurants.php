@@ -53,22 +53,23 @@ if($restaurantID) {
     $statusStats = $resultStatus->fetch_assoc();
 
     $action = $_GET['action'] ?? '';
-    // Edits name of restaurant
+
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Edits name of restaurant if this 'edit' action is detected
         if (isset($_POST['edit'])) {
             $newName = $_POST['name'];
             $updateStmt = $conn->prepare("UPDATE Restaurant SET name=? WHERE restaurantID=?");
             $updateStmt->bind_param("si", $newName, $restaurantID);
             $updateStmt->execute();
-            header("Location: ../admin/restaurants.php?restaurantID=$restaurantID");
+            header("Location: ../admin/restaurants.php?restaurantID=$restaurantID"); // Goes back to original state (refreshes)
             exit;
         }
-    // Deletes restaurant
+        // Deletes restaurant if this 'delete' action is detected
         if (isset($_POST['delete'])) {
             $deleteStmt = $conn->prepare("DELETE FROM Restaurant WHERE restaurantID=?");
             $deleteStmt->bind_param("i", $restaurantID);
             $deleteStmt->execute();
-            header("Location: ../admin/restaurants.php"); // Go back to list
+            header("Location: ../admin/restaurants.php");
             exit;
         }
     }
