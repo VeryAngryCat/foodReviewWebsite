@@ -1,23 +1,25 @@
 <?php
 // Database connection
-include '../includes/dbConn.php';
-include '../includes/authUser.php';
+include '../includes/dbConn.php';      // Includes the database connection file
+include '../includes/authUser.php';    // Includes user authentication file
 
-// Fetch all filter options
-$cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");
-$dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference");
+// Fetch all filter options from database
+$cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");                     // Gets all cuisine types
+$dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference"); // Gets all dietary preferences
 
-// Initialize filter variables
-$searchTerm = $_POST['search'] ?? '';
-$selectedCuisine = $_GET['cuisine'] ?? 0;
-$selectedDiet = $_GET['dietary'] ?? 0;
+// Initialize filter variables from user input
+$searchTerm = $_POST['search'] ?? '';        // Gets search term from POST or sets empty string
+$selectedCuisine = $_GET['cuisine'] ?? 0;    // Gets selected cuisine from GET or sets to 0
+$selectedDiet = $_GET['dietary'] ?? 0;       // Gets selected diet from GET or sets to 0
 
-// SQL query selection for buttons
-$buttonQuery = $_GET['query'] ?? '';
+// Check for predefined query buttons
+$buttonQuery = $_GET['query'] ?? '';         // Gets which predefined query button was clicked
 
-// Handle predefined queries
-$specialResults = null;
+// Handle predefined queries (special result sets)
+$specialResults = null;  // Will hold results if a predefined query is selected
+
 if ($buttonQuery === 'topRated') {
+    // Query for top 5 highest rated restaurants with their average ratings
     $specialResults = mysqli_query($conn, "
         SELECT 
             r.name AS restaurant_name, 
@@ -38,6 +40,7 @@ if ($buttonQuery === 'topRated') {
         LIMIT 5
     ");
 } elseif ($buttonQuery === 'popularDishes') {
+    // Query for most popular dishes grouped by dietary preferences
     $specialResults = mysqli_query($conn, "
         SELECT 
             d.name AS dish_name, 
@@ -63,6 +66,7 @@ if ($buttonQuery === 'topRated') {
         LIMIT 10
     ");
 } elseif ($buttonQuery === 'diverseRestaurants') {
+    // Query for most diverse restaurants (by cuisine, diet, and dish count)
     $specialResults = mysqli_query($conn, "
         SELECT 
             r.name AS restaurant_name,
@@ -86,9 +90,11 @@ if ($buttonQuery === 'topRated') {
     ");
 }
 
-// Normal search filter logic
-$where = [];
-$join = '';
+// Normal search filter logic (when not using predefined queries)
+$where = [];  // Array to hold WHERE conditions
+$join = '';   // String to hold JOIN clauses
+
+// Build conditions based on user input
 if (!empty($searchTerm)) {
     $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
 }
@@ -100,13 +106,17 @@ if ($selectedDiet > 0) {
     $join .= " JOIN RestaurantDietary rd ON r.restaurantID = rd.restaurantID";
     $where[] = "rd.dietID = " . (int)$selectedDiet;
 }
+
+// Build the final query
 $query = "SELECT DISTINCT r.* FROM Restaurant r $join";
 if (!empty($where)) {
     $query .= " WHERE " . implode(' AND ', $where);
 }
+
+// Execute the query
 $restaurants = mysqli_query($conn, $query);
 if (!$restaurants) {
-    die("Query failed: " . mysqli_error($conn));
+    die("Query failed: " . mysqli_error($conn));  // Show error if query fails
 }
 ?>
 
@@ -116,21 +126,36 @@ if (!$restaurants) {
     <meta charset="UTF-8">
     <title>Browse Restaurants</title>
     <style>
+        /* Main page styling */
         body { background: #59a9ff; margin: 0; font-family: Arial; }
+        
+        /* Styling for search/filter sections */
         .search-bar, .filter-bar, .buttons-bar {
             background: #fdccd3; padding: 15px; border-radius: 8px; margin: 15px auto;
             width: 90%; max-width: 800px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        
+        /* Restaurant card grid layout */
         .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        
+        /* Individual restaurant card styling */
         .card { background: #bef2ff; border-radius: 10px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        /* Profile icon in top right */
         .profile-icon { position: absolute; top: 20px; right: 20px; }
         .profile-icon img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #fb79ba; }
+        
+        /* Dietary tags styling */
         .diet-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
         .diet-tag { background: #4caf50; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+        
+        /* Form element styling */
         input, select, button { padding: 8px; margin: 5px; border-radius: 4px; }
         button { background: #f477b6; color: white; border: none; cursor: pointer; }
         button:hover { background: #fe5fb4; }
+        
+        /* Special results table styling */
         .table-box { margin: 20px auto; width: 90%; max-width: 1000px; background: pink; padding: 20px; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
@@ -138,59 +163,98 @@ if (!$restaurants) {
 </head>
 <body>
 
+<!-- Profile icon linking to user profile -->
 <div class="profile-icon"><a href="usprofile.php"><img src="assets/profile-icon.png" alt="Profile"></a></div>
 
+<!-- SEARCH BAR SECTION -->
 <div class="search-bar">
+    <!-- Form uses POST method to submit search term -->
     <form method="POST">
-        <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" placeholder="Search Restaurants..." style="width: 60%;">
+        <!-- Search input field with preserved value after submission -->
+        <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" 
+               placeholder="Search Restaurants..." style="width: 60%;">
         <button type="submit">Search</button>
     </form>
 </div>
 
+<!-- FILTER OPTIONS SECTION -->
 <div class="filter-bar">
+    <!-- Form uses GET method so filters appear in URL -->
     <form method="GET">
+        <!-- Cuisine dropdown filter -->
         <label>Cuisine:</label>
         <select name="cuisine">
-            <option value="">All</option>
-            <?php mysqli_data_seek($cuisines, 0);
+            <option value="">All</option>  <!-- Default "All" option -->
+            <?php 
+            // Reset result pointer to beginning for re-use
+            mysqli_data_seek($cuisines, 0);  
+            // Loop through all cuisine options from database
             while ($cuisine = mysqli_fetch_assoc($cuisines)): ?>
-                <option value="<?= $cuisine['cuisineID'] ?>" <?= ($selectedCuisine == $cuisine['cuisineID']) ? 'selected' : '' ?>>
+                <!-- Each option shows cuisine name, with selected attribute if active -->
+                <option value="<?= $cuisine['cuisineID'] ?>" 
+                    <?= ($selectedCuisine == $cuisine['cuisineID']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($cuisine['name']) ?>
                 </option>
             <?php endwhile; ?>
         </select>
+        
+        <!-- Dietary preferences dropdown filter -->
         <label>Dietary:</label>
         <select name="dietary">
             <option value="">All</option>
-            <?php mysqli_data_seek($dietaryPreferences, 0);
+            <?php 
+            // Reset pointer for dietary preferences
+            mysqli_data_seek($dietaryPreferences, 0);  
             while ($diet = mysqli_fetch_assoc($dietaryPreferences)): ?>
-                <option value="<?= $diet['dietID'] ?>" <?= ($selectedDiet == $diet['dietID']) ? 'selected' : '' ?>>
+                <option value="<?= $diet['dietID'] ?>" 
+                    <?= ($selectedDiet == $diet['dietID']) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($diet['name']) ?>
                 </option>
             <?php endwhile; ?>
         </select>
-        <button type="submit">Filter</button>
+        
+        <!-- Form submission buttons -->
+        <button type="submit">Filter</button>  <!-- Applies selected filters -->
+        <!-- Reset button clears filters by reloading page without parameters -->
         <button type="button" onclick="window.location.href='browse.php'">Reset</button>
     </form>
 </div>
 
+<!-- PRE-DEFINED QUERY BUTTONS -->
 <div class="buttons-bar">
-    <button onclick="window.location.href='browse.php?query=topRated'">1. Top 5 Highest Rated Restaurants</button>
-    <button onclick="window.location.href='browse.php?query=popularDishes'">2. Most Popular Dishes by Dietary Preferences</button>
-    <button onclick="window.location.href='browse.php?query=diverseRestaurants'">3. Most Diverse Restaurants</button>
+    <!-- Each button triggers a different special query by adding URL parameter -->
+    <!-- 1. Shows top rated restaurants -->
+    <button onclick="window.location.href='browse.php?query=topRated'">
+        1. Top 5 Highest Rated Restaurants
+    </button>
+    
+    <!-- 2. Shows popular dishes grouped by dietary preferences -->
+    <button onclick="window.location.href='browse.php?query=popularDishes'">
+        2. Most Popular Dishes by Dietary Preferences
+    </button>
+    
+    <!-- 3. Shows restaurants with most variety -->
+    <button onclick="window.location.href='browse.php?query=diverseRestaurants'">
+        3. Most Diverse Restaurants
+    </button>
 </div>
 
-<?php if ($specialResults): ?>
+<!-- SPECIAL RESULTS DISPLAY (for predefined queries) -->
+<?php if ($specialResults): ?>  <!-- Only shows if a special query was run -->
     <div class="table-box">
         <table>
             <thead>
                 <tr>
-                    <?php while ($col = mysqli_fetch_field($specialResults)) echo "<th>{$col->name}</th>"; ?>
+                    <!-- Dynamically creates table headers based on query columns -->
+                    <?php while ($col = mysqli_fetch_field($specialResults)) 
+                        echo "<th>{$col->name}</th>"; ?>
                 </tr>
             </thead>
             <tbody>
+                <!-- Loops through each row of results -->
                 <?php while ($row = mysqli_fetch_assoc($specialResults)): ?>
                     <tr>
+                        <!-- Displays each value in the row -->
                         <?php foreach ($row as $value): ?>
                             <td><?= htmlspecialchars($value) ?></td>
                         <?php endforeach; ?>
@@ -201,19 +265,36 @@ if (!$restaurants) {
     </div>
 <?php endif; ?>
 
-<!-- Restaurant Cards -->
+<!-- MAIN RESTAURANT CARDS DISPLAY -->
 <div class="container">
-<?php if (mysqli_num_rows($restaurants) > 0): ?>
+<?php if (mysqli_num_rows($restaurants) > 0): ?>  <!-- Check if any restaurants found -->
     <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
         <?php
-        $cuisineQuery = mysqli_query($conn, "SELECT c.name FROM Cuisine c JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID WHERE rc.restaurantID = {$restaurant['restaurantID']}");
-        $dietQuery = mysqli_query($conn, "SELECT d.name FROM DietaryPreference d JOIN RestaurantDietary rd ON d.dietID = rd.dietID WHERE rd.restaurantID = {$restaurant['restaurantID']}");
+        // Get additional info for each restaurant:
+        // 1. Query for all cuisine types this restaurant offers
+        $cuisineQuery = mysqli_query($conn, 
+            "SELECT c.name FROM Cuisine c 
+             JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID 
+             WHERE rc.restaurantID = {$restaurant['restaurantID']}");
+        
+        // 2. Query for all dietary options this restaurant accommodates
+        $dietQuery = mysqli_query($conn, 
+            "SELECT d.name FROM DietaryPreference d 
+             JOIN RestaurantDietary rd ON d.dietID = rd.dietID 
+             WHERE rd.restaurantID = {$restaurant['restaurantID']}");
         ?>
+        
+        <!-- Individual restaurant card -->
         <div class="card">
-            <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" style="text-decoration:none; color:inherit;">
+            <!-- Clickable card that links to restaurant detail page -->
+            <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" 
+               style="text-decoration:none; color:inherit;">
+               
                 <h2><?= htmlspecialchars($restaurant['name']) ?></h2>
                 <p><strong>Location:</strong> <?= htmlspecialchars($restaurant['location']) ?></p>
                 <p><strong>Status:</strong> <?= htmlspecialchars($restaurant['operationStatus']) ?></p>
+                
+                <!-- Display dietary tags if available -->
                 <?php if (mysqli_num_rows($dietQuery) > 0): ?>
                     <div class="diet-tags">
                         <?php while ($diet = mysqli_fetch_assoc($dietQuery)): ?>
@@ -224,13 +305,11 @@ if (!$restaurants) {
             </a>
         </div>
     <?php endwhile; ?>
-<?php else: ?>
+<?php else: ?>  <!-- No restaurants found message -->
     <div class="no-results">
         <p>No restaurants found matching your criteria.</p>
+        <!-- Button to reset all filters -->
         <a href="?"><button>Show All Restaurants</button></a>
     </div>
 <?php endif; ?>
 </div>
-
-</body>
-</html>
