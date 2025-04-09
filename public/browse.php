@@ -100,13 +100,8 @@ if (!$restaurants) {
         .profile-icon img {
             width: 70px;
             height: 70px;
-<<<<<<< HEAD
             border-radius: 50%;
             border: 2px solid rgb(4, 4, 4);
-=======
-            border-radius: 50%;   /* Circular image */
-            border: 2px solid rgb(251, 121, 186);
->>>>>>> 5aa00cd65b12aa76c29c69dfbe2d5488c62e666a
         }
 
         .container {
