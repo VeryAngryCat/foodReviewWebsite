@@ -163,12 +163,7 @@ if (!$restaurants) {
 </head>
 <body>
 
-<<<<<<< HEAD
 <div class="profile-icon"><a href="usprofile.php"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile"></a></div>
-=======
-<!-- Profile icon linking to user profile -->
-<div class="profile-icon"><a href="usprofile.php"><img src="assets/profile-icon.png" alt="Profile"></a></div>
->>>>>>> 8422a9c8d1ef1800ede3941efa5d6ebe86214e93
 
 <!-- SEARCH BAR SECTION -->
 <div class="search-bar">

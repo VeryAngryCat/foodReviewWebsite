@@ -1,16 +1,18 @@
 <?php
-// Database connection
+// Database and authentication connection
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
+// Get restaurant ID from the URL
 $restaurantID = $_GET['restaurantID'] ?? null;
 
+// If no restaurant ID is given, prints error message and exits
 if (!$restaurantID) {
     echo "No restaurant selected.";
     exit();
 }
 
-// Get restaurant name
+// Get restaurant name from ID
 $nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?";
 $stmt = $conn->prepare($nameQuery);
 $stmt->bind_param("i", $restaurantID);
@@ -24,13 +26,15 @@ if (!$restaurantName) {
     exit();
 }
 
+// Get the user ID from session
 $userID = $_SESSION['userID'] ?? null;
 
-// Handle form submission
+// If the review form is submitted and user is logged in
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
-    $rating = $_POST['rating'];
-    $comment = trim($_POST['comment']);
+    $rating = $_POST['rating']; // Gets rating
+    $comment = trim($_POST['comment']); // Gets reviews
 
+    // Only insert if both rating and comment are filled
     if ($rating && $comment) {
         $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
                         VALUES (?, ?, ?, ?, CURDATE())";
@@ -39,12 +43,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
         $stmt->execute();
         $stmt->close();
 
+        // Redirect back to the same page after submitting
         header("Location: review.php?restaurantID=$restaurantID");
         exit();
     }
 }
 
-// Fetch reviews
+// Fetch reviews for the restaurant
 $reviewQuery = "SELECT R.rating, R.commentLeft, R.datePosted, U.username 
                 FROM Reviews R
                 JOIN Users U ON R.userID = U.userID
@@ -62,6 +67,7 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <title>Restaurant Reviews</title>
+    <!--CSS STYLING-->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -160,10 +166,10 @@ $result = $stmt->get_result();
     Reviews for <?= htmlspecialchars($restaurantName) ?>
 </div>
 
-
     <!-- Review Form -->
     <div class="review-form">
         <?php if ($userID): ?>
+            <!-- Show form only if user is logged in -->
             <form action="" method="POST">
                 <label for="rating">Rating:</label>
                 <select name="rating" id="rating" required>
@@ -181,13 +187,14 @@ $result = $stmt->get_result();
                 <input type="submit" value="Submit Review">
             </form>
         <?php else: ?>
+            <!-- Ask user to log in if not logged in -->
             <p><strong><a href="../public/login.php">Login</a></strong> to submit a review.</p>
         <?php endif; ?>
     </div>
 
     <hr>
 
-    <!-- Reviews -->
+    <!-- Shows Reviews -->
     <?php if ($result->num_rows > 0): ?>
         <?php while ($row = $result->fetch_assoc()): ?>
             <div class="review-box">
@@ -198,10 +205,12 @@ $result = $stmt->get_result();
             </div>
         <?php endwhile; ?>
     <?php else: ?>
+        <!-- If no reviews found -->
         <div class="no-reviews">No reviews yet. Be the first to write one!</div>
     <?php endif; ?>
 </div>
 
+<!-- Back button to restaurant page -->
 <div style="margin-top: 30px; text-align: center;">
     <a href="restaurant.php?restaurantID=<?= $restaurantID ?>"
     style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
