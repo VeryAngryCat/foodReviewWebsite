@@ -35,6 +35,7 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
 <body>
     <div class="container" style="margin-top: 100px;">
         <h1>Welcome Administrator!</h1>
+        <!-- An option menu for the admin -->
         <div class="class-menu">
             <a href="restaurants.php">Manage Restaurants</a>
             <a href="reviews.php">Manage Reviews</a>
@@ -43,7 +44,7 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
         </div>
     </div>
     <div class="stats" style="margin-top: 10vh;">
-        <!-- Total users, restaurants, reviews -->
+        <!-- Displays total users, restaurants, and reviews (kind of like an infograph)-->
         <div class="stat-card">
             <h2>
                 <?php echo $dataUsers['usTotal'];?>
@@ -69,6 +70,7 @@ $dataAdm = mysqli_fetch_assoc($resultAdm);
             </h2>
         </div>
     </div>
+    <!-- Log out button which takes admin back to login page -->
     <a href="../admin/adminLogin.php" class="logout-button">Logout</a>
 </body>
 </html>
