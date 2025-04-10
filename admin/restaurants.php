@@ -85,11 +85,12 @@ if($restaurantID) {
     <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
 </head>
 <body>
-    <h1>Manage Restaurants</h1>
-    <form method="get" action="../admin/restaurants.php" class="choice">
+    <h1>Manage Restaurants</h1> <!-- Heading at the top of page -->
+    <form method="get" action="../admin/restaurants.php" class="choice"> <!-- drop down selection of restaurants -->
         <label>Select a Restaurant:</label>
         <select name="restaurantID" onchange="this.form.submit()">
             <option disabled selected>Select a restaurant</option>
+            <!-- Displays all restaurants by looping through the database  by using $row as a placeholder/pointer -->
             <?php while ($row = $allRestaurants->fetch_assoc()): ?>
                 <option value="<?= $row['restaurantID'] ?>" <?= isset($restaurantID) && $restaurantID == $row['restaurantID'] ? 'selected' : '' ?>>
                     <?= htmlspecialchars($row['name']) ?>
@@ -97,15 +98,17 @@ if($restaurantID) {
             <?php endwhile; ?>
         </select>
     </form>
+    <!-- if restaurant is selected, displays all the  information in blue fact boxes (similar  to dashboard) -->
     <?php if (isset($restaurantID)): ?>
-        <div class="container" style="margin-top: 200px; width: 75vw;">
-            <h1 style="padding-top: 20px; padding-bottom: 100px;"><?= htmlspecialchars($restaurant['name']) ?></h1>
+        <div class="container" style="margin-top: 200px; width: 75vw;"> <!-- slightly different style to foodRev3.css -->
+            <h1 style="padding-top: 20px; padding-bottom: 100px;"><?= htmlspecialchars($restaurant['name']) ?></h1> <!-- Displays name fetched from database -->
             <div class="stats">
                 <div class="stat-card">Total Reviews: <?= $reviewStats['totalReviews'] ?></div>
                 <div class="stat-card">Avg Rating: <?= number_format($reviewStats['avgRating'], 1) ?>/5</div>
                 <div class="stat-card">Total Dishes: <?= $dishStats['totalDishes'] ?></div>
                 <div class="stat-card">Operational Status: <?= $statusStats['operationStatus'] ?></div>
             </div>
+            <!-- edit form, with a box for changing the name of the restaurant, along with a save (changes) and  delete (restaurant) button -->
             <form method="post" class="edit-delete-form">
                 <label for="name">Edit Restaurant Name:</label>
                 <input type="text" id="name" name="name" value="<?= htmlspecialchars($restaurant['name']) ?>">
@@ -116,8 +119,8 @@ if($restaurantID) {
             </form>
         </div>
     <?php endif; ?>
-    <div class="back-to-dashboard">
-        <a href="../admin/dashboard.php">← Back to Dashboard</a>
+    <div class="back-to-dashboard"> <!-- Return button -->
+        <a href="../admin/dashboard.php">← Back to Dashboard</a> 
     </div>
     <?php // Closes the database connection
     mysqli_close($conn);

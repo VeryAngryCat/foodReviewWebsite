@@ -53,6 +53,7 @@ mysqli_close($conn);
     <title>Admin Login</title>
     <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
     <style>
+        /* Inherits foodRev1.css's style, but makes some changes to colour */
         input[type="submit"] { background-color: blue;}
         input[type="submit"]:hover {background-color: rgb(89, 89, 255);}
     </style>
