@@ -165,7 +165,7 @@ $result = $stmt->get_result();
 <div class="header">
     Reviews for <?= htmlspecialchars($restaurantName) ?>
 </div>
-
+<div class="container">
     <!-- Review Form -->
     <div class="review-form">
         <?php if ($userID): ?>
