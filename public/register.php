@@ -6,20 +6,20 @@ include '../includes/dbConn.php';
 $error_message = '';
 $success_message = '';
 
-// Check if the form was submitted
+// Checks if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get user input
+    // Gets user input from form
     $firstName = $_POST['firstName'];
     $lastName = $_POST['lastName'];
     $username = $_POST['username'];
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check if any field is empty
+    // Checks if any field is empty/null
     if (empty($firstName) || empty($lastName) || empty($username) || empty($email) || empty($password)) {
         $error_message = "All fields are required!";
     } else {
-        // Check if username/email already exists in the database
+        // Checks if the username/email already exists in the database
         $sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "ss", $username, $email);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($count > 0) {
             $error_message = "Username or email already exists.";
         } else {
-            // // Check if email has '@' (basic validation)
+            // Checks if email has '@'
             if (strpos($email, '@') === false) {
                 $error_message = "Email must contain '@'.";
             } else {
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     // Hashes the password
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                    // SQL to insert user
+                    // SQL to insert user into Users in  our database
                     $sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
                             VALUES (?, ?, ?, ?, ?)";
                     $stmt = mysqli_prepare($conn, $sql);
@@ -79,7 +79,7 @@ mysqli_close($conn);
     <div class="container">
         <h2>User Registration</h2>
 
-        <!-- Form to capture user input -->
+        <!-- Form captures user input -->
         <form action="register.php" method="POST">
             <label for="firstName">First Name</label>
             <input type="text" id="firstName" name="firstName" required> <!-- 'required' means field can't be empty -->

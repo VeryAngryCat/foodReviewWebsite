@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Review - Home</title>
     <style>
+        /* Styles for index page - supposed to be light green with dark green buttons and a dark blue link to admin */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #e8f5e9;
@@ -65,12 +66,12 @@
 </head>
 <body>
     <div class="container">
-        <h2>Welcome to Food Review</h2>
+        <h2>Welcome to Food Review</h2> <!-- Takes user to login and register pages, respectively -->
         <button class="btn" onclick="window.location.href='login.php'">Login</button>
         <button class="btn" onclick="window.location.href='register.php'">Sign Up</button>
     </div>
     <div class="link-to-admin">
-        <a href="../admin/adminLogin.php">I am an Admin</a>
+        <a href="../admin/adminLogin.php">I am an Admin</a> <!-- Link to adminLogin in the admin section -->
     </div>
 </body>
 </html>

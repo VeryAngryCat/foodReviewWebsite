@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pword = $_POST['userPassword'];
 
     if (empty($uname) || empty($pword)) {
+        // Error messages are run in the html section
         $error_message = "All fields are required!";
     } else {
         $sql = "SELECT userID, username, userPassword FROM Users WHERE username = ?";
@@ -22,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
 
+        // Only runs if the username which exists
         if (mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
             $storedPassword = $row["userPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
@@ -56,6 +58,7 @@ mysqli_close($conn);
 <body>
     <div class="container">
         <h2>Login</h2>
+        <!-- Submission form for details -->
         <form method="POST" action="login.php">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>

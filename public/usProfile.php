@@ -5,7 +5,7 @@ include '../includes/authUser.php';
 
 $userID = $_SESSION['userID'];
 
-// Get user information
+// Gets user information
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
 $stmt->bind_param("i", $userID);
 $stmt->execute();
@@ -13,19 +13,19 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Show error if user not found
+// Shows error if user not found
 if (!$user) {
     echo "No user data found for userID: $userID";
     exit();
 }
 
-// Store user info in variables for later use
+// Stores user info in variables for later use
 $firstName = $user['firstName'];
 $lastName = $user['lastName'];
 $email = $user['email'];
 $username = $user['username'];
 
-// Get number of favorite restaurants
+// Gets number of favorite restaurants
 $favSql = "SELECT COUNT(*) FROM FavouriteRestaurant WHERE userID = ?";
 $favStmt = $conn->prepare($favSql);
 $favStmt->bind_param("i", $userID);
@@ -35,7 +35,7 @@ $favStmt->fetch();
 $favStmt->close();
 
 
-// Get user reviews (FIXED query without extra join)
+// Gets user reviews (FIXED query without extra join)
 $reviewSql = "
     SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
     FROM Reviews r 
@@ -46,7 +46,7 @@ $reviewStmt->bind_param("i", $userID);
 $reviewStmt->execute();
 $reviewResult = $reviewStmt->get_result();
 
-// Get user's dietary preferences
+// Gets user's dietary preferences
 $dietSql = "
     SELECT d.name, d.description 
     FROM FavouriteDiet fd 
@@ -57,7 +57,7 @@ $dietStmt->bind_param("i", $userID);
 $dietStmt->execute();
 $dietResult = $dietStmt->get_result();
 
-// Get favorite dishes with restaurant info
+// Gets favorite dishes with restaurant info
 $favCombinedSql = "
     SELECT d.name AS dishName, r.name AS restaurantName 
     FROM FavouriteDish fd
@@ -77,6 +77,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
     <meta charset="UTF-8">
     <title>Your Profile</title>
     <style>
+        /*STYLES*/
         body {
             font-family: Arial, sans-serif;
             background-color: rgb(89, 169, 255);
@@ -162,6 +163,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
             <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
             
             <!-- Dietary Preferences -->
+             <!-- if there are any then prints them -->
             <?php if ($dietResult->num_rows > 0): ?>
                 <p><strong>Dietary Preferences:</strong></p>
                 <ul>
@@ -174,6 +176,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
                        </li>
                     <?php endwhile; ?>
                 </ul>
+            <!-- If none prints this -->    
             <?php else: ?>
                 <p><strong>Dietary Preferences:</strong> You haven't selected any.</p>
             <?php endif; ?>      

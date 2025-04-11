@@ -201,7 +201,7 @@ while ($row = mysqli_fetch_assoc($likeResult)) {
 <!-- JavaScript to handle heart icon toggle -->
 <script>
 function toggleLike(dishID, element) {
-    element.style.pointerEvents = "none"; // prevent double clicks
+    element.style.pointerEvents = "none"; // prevents double clicks
 
     // Creates a new AJAX request
     const xhr = new XMLHttpRequest();
@@ -212,7 +212,7 @@ function toggleLike(dishID, element) {
     // When we get a response
     xhr.onload = function () {
         if (xhr.status === 200) {
-            // Toggle heart color (like/unlike)
+            // Toggles heart color (like/unlike)
             element.classList.toggle("liked");
         } else {
             // Error message
@@ -221,7 +221,7 @@ function toggleLike(dishID, element) {
         // Allows clicking again
         element.style.pointerEvents = "auto";
     };
-    // Send dishID to PHP for toggling like
+    // Sends dishID to PHP for toggling like
     xhr.send("toggleLike=1&dishID=" + dishID);
 }
 </script>

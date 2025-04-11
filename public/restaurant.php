@@ -9,7 +9,7 @@ include '../includes/authUser.php';
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
 
-    // SQL statemnet to get the restaurent with given ID
+    // SQL statement to get the restaurent with given ID
     $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
     $stmt = $conn->prepare($query);
 
@@ -50,13 +50,13 @@ $cuisineStmt->bind_param("i", $restaurantID);
 $cuisineStmt->execute();
 $cuisineResult = $cuisineStmt->get_result();
 
-// Initializes array to store cuisine names
+// Initialises array to store cuisine names
 $cuisines = [];
 while ($cuisine = $cuisineResult->fetch_assoc()) {
     $cuisines[] = $cuisine['name'];
 }
 
-// If restaurant is not found this time, redirect to browse page
+// If restaurant is not found this time, redirects to browse page
 if (!$restaurant) {
     header("Location: browse.php");
     exit();
@@ -177,7 +177,7 @@ $stmt->close(); // Close the statement
         <p><span class="highlight">Cuisines:</span>
             <?php echo implode(", ", $cuisines); ?>
         </p>
-        <!-- Show average rating -->
+        <!-- Shows average rating -->
         <p><strong>Average Rating:</strong>
             <?php 
             echo $averageRating !== null 
@@ -205,6 +205,6 @@ $stmt->close(); // Close the statement
 </html>
 
 <?php
-// Close DB connection
- $conn->close(); 
+// Closes DB connection
+ $conn->close();
 ?>

@@ -3,7 +3,7 @@
 include '../includes/dbConn.php';
 include '../includes/authUser.php';
 
-// Get restaurant ID from the URL
+// Gets restaurant ID from the URL
 $restaurantID = $_GET['restaurantID'] ?? null;
 
 // If no restaurant ID is given, prints error message and exits
@@ -12,7 +12,7 @@ if (!$restaurantID) {
     exit();
 }
 
-// Get restaurant name from ID
+// Gets restaurant name from ID
 $nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?";
 $stmt = $conn->prepare($nameQuery);
 $stmt->bind_param("i", $restaurantID);
@@ -26,7 +26,7 @@ if (!$restaurantName) {
     exit();
 }
 
-// Get the user ID from session
+// Gets the user ID from session
 $userID = $_SESSION['userID'] ?? null;
 
 // If the review form is submitted and user is logged in
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
     $rating = $_POST['rating']; // Gets rating
     $comment = trim($_POST['comment']); // Gets reviews
 
-    // Only insert if both rating and comment are filled
+    // Only inserts if both rating and comment are filled
     if ($rating && $comment) {
         $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
                         VALUES (?, ?, ?, ?, CURDATE())";
@@ -43,13 +43,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
         $stmt->execute();
         $stmt->close();
 
-        // Redirect back to the same page after submitting
+        // Redirects back to the same page after submit
         header("Location: review.php?restaurantID=$restaurantID");
         exit();
     }
 }
 
-// Fetch reviews for the restaurant
+// Fetches reviews for the restaurant
 $reviewQuery = "SELECT R.rating, R.commentLeft, R.datePosted, U.username 
                 FROM Reviews R
                 JOIN Users U ON R.userID = U.userID
@@ -78,7 +78,7 @@ $result = $stmt->get_result();
     <!-- Review Form -->
     <div class="review-form">
         <?php if ($userID): ?>
-            <!-- Show form only if user is logged in -->
+            <!-- Shows form only if user is logged in -->
             <form action="" method="POST">
                 <label for="rating">Rating:</label>
                 <select name="rating" id="rating" required>
