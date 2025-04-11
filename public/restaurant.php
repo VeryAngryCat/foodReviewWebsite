@@ -9,7 +9,7 @@ include '../includes/authUser.php';
 if (isset($_GET['restaurantID'])) {
     $restaurantID = $_GET['restaurantID'];
 
-    // SQL statemnet to get the restaurent with given ID
+    // SQL statement to get the restaurent with given ID
     $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
     $stmt = $conn->prepare($query);
 
@@ -64,7 +64,7 @@ if (!$restaurant) {
 
 // -----CODE TO GET AVERAGE RATING OF THE RESTAURANT FROM REVIEWS TABLE-----
 
-$ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?";
+$ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?"; 
 $ratingStmt = $conn->prepare($ratingQuery);
 $ratingStmt->bind_param("i", $restaurantID);
 $ratingStmt->execute();
@@ -170,19 +170,20 @@ $stmt->close(); // Close the statement
 <!-- Main content -->
 <div class="container">
     <div class="restaurant-info">
-        <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p>
-        <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p>
+        <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p> <!--Shows location-->
+        <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p> <!--Shows operation status-->
         
         <!-- List of cuisines -->
         <p><span class="highlight">Cuisines:</span>
-            <?php echo implode(", ", $cuisines); ?>
+            <?php echo implode(", ", $cuisines); // prints all the cuisines of the restaurant
+            ?> 
         </p>
-        <!-- Show average rating -->
+        <!-- Shows average rating -->
         <p><strong>Average Rating:</strong>
             <?php 
-            echo $averageRating !== null 
+            echo $averageRating !== null // if avg rating is not null, prints it out (nearest value)
                 ? number_format($averageRating, 1) . " ⭐" 
-                : "Not Rated Yet ⭐"; 
+                : "Not Rated Yet ⭐"; //else, it prints "not rated yet"
             ?>
         </p>
     </div>

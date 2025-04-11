@@ -12,10 +12,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST[
     $dishID = (int)$_POST['dishID']; // Ensures dishID is an integer
 
     // Checks if user already liked the dish
-    $checkSql = "SELECT * FROM FavouriteDish WHERE userID = ? AND dishID = ?";
+    // SQL query to check if the dish is a fav for the user
+    $checkSql = "SELECT * FROM FavouriteDish WHERE userID = ? AND dishID = ?"; 
     $checkStmt = $conn->prepare($checkSql);
-    $checkStmt->bind_param("ii", $userID, $dishID);
+    // Binds userID and dishID as integers to the query
+    $checkStmt->bind_param("ii", $userID, $dishID); 
+    // Executes the prepared SQL statement
     $checkStmt->execute();
+    // Gets the results 
     $checkResult = $checkStmt->get_result();
 
     if ($checkResult->num_rows > 0) {

@@ -7,9 +7,13 @@ $userID = $_SESSION['userID'];
 
 // Get user information
 $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
+// Binds userID as an integer to the query
 $stmt->bind_param("i", $userID);
+// Executes the statement
 $stmt->execute();
+// Gets the result set
 $result = $stmt->get_result();
+// Fetch the user's information as array
 $user = $result->fetch_assoc();
 $stmt->close();
 
@@ -35,7 +39,7 @@ $favStmt->fetch();
 $favStmt->close();
 
 
-// Get user reviews (FIXED query without extra join)
+// Get user reviews 
 $reviewSql = "
     SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
     FROM Reviews r 
@@ -165,7 +169,7 @@ $favCombinedResult = $favCombinedStmt->get_result();
             <?php if ($dietResult->num_rows > 0): ?>
                 <p><strong>Dietary Preferences:</strong></p>
                 <ul>
-                    <?php while ($diet = $dietResult->fetch_assoc()): ?>
+                    <?php while ($diet = $dietResult->fetch_assoc()): ?> <!-- Loop through each dietary preference -->
                        <li>
                           <strong><?php echo htmlspecialchars($diet['name']); ?></strong>
                           <?php if ($diet['description']): ?>

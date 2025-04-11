@@ -13,11 +13,15 @@ if (!$restaurantID) {
 }
 
 // Get restaurant name from ID
-$nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?";
+$nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?"; 
 $stmt = $conn->prepare($nameQuery);
+// Bind the restaurant ID as an integer to the SQL query (tells the database what the parameters are)
 $stmt->bind_param("i", $restaurantID);
+// Execute the query
 $stmt->execute();
+// Get the result of the query and stores it in the variable "$restaurantName"
 $stmt->bind_result($restaurantName);
+// Fetches the data 
 $stmt->fetch();
 $stmt->close();
 
@@ -31,10 +35,10 @@ $userID = $_SESSION['userID'] ?? null;
 
 // If the review form is submitted and user is logged in
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
-    $rating = $_POST['rating']; // Gets rating
+    $rating = $_POST['rating']; // Gets rating (form input)
     $comment = trim($_POST['comment']); // Gets reviews
 
-    // Only insert if both rating and comment are filled
+    // Only if both rating and comment are filled, the data is inserted into reviews table 
     if ($rating && $comment) {
         $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
                         VALUES (?, ?, ?, ?, CURDATE())";
@@ -104,7 +108,8 @@ $result = $stmt->get_result();
     <hr>
 
     <!-- Shows Reviews -->
-    <?php if ($result->num_rows > 0): ?>
+    <!-- If there are records in the reviews table, then the code will run and it will fetch each review -->
+    <?php if ($result->num_rows > 0): ?> 
         <?php while ($row = $result->fetch_assoc()): ?>
             <div class="review-box">
                 <div class="user"><?= htmlspecialchars($row['username']) ?></div>
