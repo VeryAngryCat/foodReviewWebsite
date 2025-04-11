@@ -12,13 +12,8 @@ if (!$restaurantID) {
     exit();
 }
 
-<<<<<<< HEAD
 // Get restaurant name from ID
 $nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?"; 
-=======
-// Gets restaurant name from ID
-$nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?";
->>>>>>> 90bd271d00129828e7f2aea51c6fd1418edadaca
 $stmt = $conn->prepare($nameQuery);
 // Bind the restaurant ID as an integer to the SQL query (tells the database what the parameters are)
 $stmt->bind_param("i", $restaurantID);
@@ -43,11 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
     $rating = $_POST['rating']; // Gets rating (form input)
     $comment = trim($_POST['comment']); // Gets reviews
 
-<<<<<<< HEAD
     // Only if both rating and comment are filled, the data is inserted into reviews table 
-=======
-    // Only inserts if both rating and comment are filled
->>>>>>> 90bd271d00129828e7f2aea51c6fd1418edadaca
     if ($rating && $comment) {
         $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
                         VALUES (?, ?, ?, ?, CURDATE())";
