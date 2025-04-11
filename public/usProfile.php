@@ -39,11 +39,7 @@ $favStmt->fetch();
 $favStmt->close();
 
 
-<<<<<<< HEAD
 // Get user reviews 
-=======
-// Gets user reviews (FIXED query without extra join)
->>>>>>> 90bd271d00129828e7f2aea51c6fd1418edadaca
 $reviewSql = "
     SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
     FROM Reviews r 
