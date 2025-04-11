@@ -23,10 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
+    // Handles adding admin account
     if (isset($_POST['add-button'])) {
         $username = $_POST['username'];
         $password = $_POST['adminPassword'];
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hashed password generated herre
         $insertStmt = $conn->prepare("INSERT INTO Admins (username, adminPassword) VALUES (?, ?)");
         $insertStmt->bind_param("ss", $username, $hashedPassword);
         $insertStmt->execute();
@@ -93,14 +94,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
     <h1>Set Admin Privileges</h1>
+    <!-- search-bar listens for click of button -->
     <form method="post" class="search-bar">
         <input type="text" name="search" placeholder="Search admin" value="<?= htmlspecialchars($searchTerm) ?>">
         <button type="submit">Search</button>
     </form>
 
     <div class="container">
+        <!-- A vertical list of all the users in the db -->
         <div class="admins-list">
+            <!-- Loops through allAdmins (all the admins, obviously) with $user1 being a temporary variable pointing at each row -->
             <?php while ($admin = $allAdmins->fetch_assoc()): ?>
+                <!-- All the info per admin is dumped in each own box -->
                 <div class="admin-box">
                     <div class="admin-info">
                         <strong>Username: </strong><?= htmlspecialchars($admin['username']); ?><br>
@@ -113,10 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             <?php endwhile; ?>
             
+            <!-- a '+' button which toggles an admin form -->
             <div class="add-admin-btn" onclick="toggleAddAdminForm()">+</div>
         </div>
+        <!-- has an id so can be called in the js -->
         <div class="add-admin-form" id="admin-form-id">
             <form method="post">
+                <!-- Form for details -->
                 <label>Username:</label><br>
                 <input type="text" name="username" required><br><br>
                 <label>Password:</label><br>
@@ -127,13 +135,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <script>
             function toggleAddAdminForm() {
+                // Gets details from the form with this id
                 var form = document.getElementById('admin-form-id');
-                form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                form.style.display = form.style.display === 'none' ? 'block' : 'none'; // Toggles visibility of form
             }
         </script>
     </div>
     <div class="back-to-dashboard">
-        <a href="../admin/dashboard.php">← Back to Dashboard</a>
+        <a href="../admin/dashboard.php">← Back to Dashboard</a> <!-- Return button -->
     </div>
     <?php
     // Closes the database connection

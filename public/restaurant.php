@@ -50,13 +50,13 @@ $cuisineStmt->bind_param("i", $restaurantID);
 $cuisineStmt->execute();
 $cuisineResult = $cuisineStmt->get_result();
 
-// Initializes array to store cuisine names
+// Initialises array to store cuisine names
 $cuisines = [];
 while ($cuisine = $cuisineResult->fetch_assoc()) {
     $cuisines[] = $cuisine['name'];
 }
 
-// If restaurant is not found this time, redirect to browse page
+// If restaurant is not found this time, redirects to browse page
 if (!$restaurant) {
     header("Location: browse.php");
     exit();
@@ -206,6 +206,6 @@ $stmt->close(); // Close the statement
 </html>
 
 <?php
-// Close DB connection
- $conn->close(); 
+// Closes DB connection
+ $conn->close();
 ?>

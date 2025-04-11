@@ -20,7 +20,6 @@ if($reviewID) {
     $review = $result->fetch_assoc();
     $review1 = $result->fetch_assoc();
     // Edits name of review
-
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['edit'])) {
             $newComment = $_POST['comment'];
@@ -67,12 +66,13 @@ if($reviewID) {
             padding: 10px;
             margin-bottom: 10px;
             cursor: pointer;
+            word-wrap: break-word; /* So the words don't overflow over edge of box */
         }
 
         .edit-box {
             flex: 1;
             border: 1px solid black;
-            padding: 20px;
+            padding: 20px; /* Alot of space so that user can edit and not feel overwhelmed */
             overflow-y: auto;
         }
 
@@ -93,10 +93,11 @@ if($reviewID) {
         </form>
 
         <div class="container">
+            <!-- List of reviews/comments displaying the comments of the users in the review section -->
             <div class="comments-list">
                 <?php while ($review1 = mysqli_fetch_assoc($allReviews)): ?>
-                    <div class="comment">
-                        <a href="?reviewID=<?= $review1['reviewID'] ?>" style="text-decoration:none; color:inherit;">
+                    <div class="comment" onclick="window.location='?reviewID=<?= $review1['reviewID'] ?>'"> <!-- so that when the whoole box is clicked takes admin to info / edit section -->
+                        <a href="?reviewID=<?= $review1['reviewID'] ?>" style="text-decoration:none; color:inherit;"> <!-- inherits colour since otherwise it would look like a normal blue link -->
                             <?= htmlspecialchars($review1['datePosted']) ?><br>
                             Rating: <?= htmlspecialchars($review1['rating']) ?>/5<br>
                             <?= htmlspecialchars($review1['commentLeft']) ?>
@@ -105,9 +106,11 @@ if($reviewID) {
                 <?php endwhile;?>
             </div>
 
+            <!-- makes sure review is set for the session and not set to null / user has to select a review by clicking it  -->
             <?php if (isset($review) && $review):?>
                 <div class="edit-box">
                     <h2>Edit Comment</h2>
+                    <!-- buttons which listen to user's actions andd take him to php section above when activated -->
                     <form method="post">
                         <textarea name="comment" rows="5" cols="40"><?= htmlspecialchars($review['commentLeft'] ?? '') ?></textarea>
                         <br><br>
@@ -117,7 +120,7 @@ if($reviewID) {
                 </div>
             <?php endif; ?>
         </div>
-        <div class="back-to-dashboard">
+        <div class="back-to-dashboard"> <!-- Return button -->
             <a href="../admin/dashboard.php">← Back to Dashboard</a>
         </div>
         <?php

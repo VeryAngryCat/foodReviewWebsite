@@ -8,14 +8,14 @@ $cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");                     //
 $dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference"); // Gets all dietary preferences
 
 // Initialize filter variables from user input
-$searchTerm = $_POST['search'] ?? '';        // Gets search term from POST or sets empty string
-$selectedCuisine = $_GET['cuisine'] ?? 0;    // Gets selected cuisine from GET or sets to 0
-$selectedDiet = $_GET['dietary'] ?? 0;       // Gets selected diet from GET or sets to 0
+$searchTerm = $_POST['search'] ?? ''; // Gets search term from POST or sets empty string
+$selectedCuisine = $_GET['cuisine'] ?? 0; // Gets selected cuisine from GET or sets to 0
+$selectedDiet = $_GET['dietary'] ?? 0; // Gets selected diet from GET or sets to 0
 
-// Check for predefined query buttons
-$buttonQuery = $_GET['query'] ?? '';         // Gets which predefined query button was clicked
+// Checks for predefined query buttons
+$buttonQuery = $_GET['query'] ?? ''; // Gets which predefined query button was clicked
 
-// Handle predefined queries (special result sets)
+// Handles predefined queries (special result sets)
 $specialResults = null;  // Will hold results if a predefined query is selected
 
 if ($buttonQuery === 'topRated') {
@@ -91,10 +91,10 @@ if ($buttonQuery === 'topRated') {
 }
 
 // Normal search filter logic (when not using predefined queries)
-$where = [];  // Array to hold WHERE conditions
-$join = '';   // String to hold JOIN clauses
+$where = []; // Array that holds WHERE conditions
+$join = ''; // String that holds JOIN clauses
 
-// Build conditions based on user input
+// Builds conditions based on user input
 if (!empty($searchTerm)) {
     $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
 }
@@ -107,16 +107,16 @@ if ($selectedDiet > 0) {
     $where[] = "rd.dietID = " . (int)$selectedDiet;
 }
 
-// Build the final query
+// Builds final query
 $query = "SELECT DISTINCT r.* FROM Restaurant r $join";
 if (!empty($where)) {
     $query .= " WHERE " . implode(' AND ', $where);
 }
 
-// Execute the query
+// Executes query
 $restaurants = mysqli_query($conn, $query);
 if (!$restaurants) {
-    die("Query failed: " . mysqli_error($conn));  // Show error if query fails
+    die("Query failed: " . mysqli_error($conn)); // Shows error if failure
 }
 ?>
 
