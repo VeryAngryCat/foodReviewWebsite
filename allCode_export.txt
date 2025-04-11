@@ -1,7 +1,6 @@
 =========================
- SQL Code
+ SQL Code (DATABASE)
 =========================
-
 
 ================================
 -- Contents of FoodReview.sql --
@@ -1577,3 +1576,1868 @@ COMMIT;
 ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */
 ;
+
+================
+~PHP + SQL Code~
+================
+
+FOLDER:INCLUDES
+===============================
+-- File: includes/dbConn.php --
+===============================
+
+<?php 
+// Connects php to the database
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "FoodReview";
+
+// Creates connection
+$conn = mysqli_connect($servername, $username, $password, $database);
+
+// Checks connection, if none, alerts user through error message
+if (!$conn) { 
+    die("Connection failed: " . mysqli_connect_error());
+} 
+?>
+
+=================================
+-- File: includes/authUser.php --
+=================================
+
+<?php
+// Authenticates user by their id and if isn't set then redirects them to login
+session_start();
+
+if (!isset($_SESSION['userID'])) {
+    header("Location: ../public/login.php");
+    exit();
+}
+?>
+
+==================================
+-- File: includes/authAdmin.php --
+==================================
+
+<?php
+// Authenticates admin by their id and if isn't set then redirects them to login
+session_start();
+
+if (!isset($_SESSION['adminID'])) {
+    header("Location: ../admin/adminLogin.php");
+    exit();
+}
+?>
+
+FOLDER:PUBLIC
+====================================================
+-- File: public/register.php -- {CONTAINS HTML CODE}
+====================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+
+// Sets up error and success messages
+$error_message = '';
+$success_message = '';
+
+// Checks if the form was submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Gets user input from form
+    $firstName = $_POST['firstName'];
+    $lastName = $_POST['lastName'];
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // Checks if any field is empty/null
+    if (empty($firstName) || empty($lastName) || empty($username) || empty($email) || empty($password)) {
+        $error_message = "All fields are required!";
+    } else {
+        // Checks if the username/email already exists in the database
+        $sql = "SELECT COUNT(*) AS count FROM Users WHERE username = ? OR email = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "ss", $username, $email);
+        mysqli_stmt_execute($stmt); // Runs the query
+        mysqli_stmt_bind_result($stmt, $count); // Stores the result (0 or 1+)
+        mysqli_stmt_fetch($stmt); // Fetches the result
+        mysqli_stmt_close($stmt); // Closes the query
+
+        if ($count > 0) {
+            $error_message = "Username or email already exists.";
+        } else {
+            // Checks if email has '@'
+            if (strpos($email, '@') === false) {
+                $error_message = "Email must contain '@'.";
+            } else {
+                // Validates password (must contain at least one uppercase letter, one lowercase letter, and one number)
+                if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+                    $error_message = "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
+                } else {
+                    // Hashes the password
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                    // SQL to insert user into Users in  our database
+                    $sql = "INSERT INTO Users (firstName, lastName, email, username, userPassword) 
+                            VALUES (?, ?, ?, ?, ?)";
+                    $stmt = mysqli_prepare($conn, $sql);
+                    mysqli_stmt_bind_param($stmt, "sssss", $firstName, $lastName, $email, $username, $hashed_password);
+                    $result = mysqli_stmt_execute($stmt); // Runs the INSERT query
+
+                    if ($result) {
+                        $success_message = "User registered successfully!";
+                    } else {
+                        $error_message = "Error: " . mysqli_error($conn);
+                    }
+
+                    mysqli_stmt_close($stmt);  // Closes the query
+                }
+            }
+        }
+    }
+}  
+
+// Closes the database connection
+mysqli_close($conn);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css"> <!-- Links CSS file for styling -->
+</head>
+<body>
+
+    <div class="container">
+        <h2>User Registration</h2>
+
+        <!-- Form captures user input -->
+        <form action="register.php" method="POST">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" required> <!-- 'required' means field can't be empty -->
+
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" required>
+
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required> <!-- 'type=email' checks for basic email format -->
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required> <!-- 'type=password' hides typed characters -->
+            <input type="submit" value="Register"> <!-- Submit button -->
+        </form>
+
+        <!-- Displays error or success messages -->
+        <?php
+            if ($error_message) {
+                echo "<p class='error'>$error_message</p>";  // Shows error in red
+            }
+            if ($success_message) {
+                echo "<p class='success'>$success_message</p>";   // Shows success in green
+                echo "<a href='login.php' class='login-button'>Continue to Login</a>";  // Link to login page
+            }
+
+            
+        ?>
+    </div>
+
+</body>
+</html>
+
+=================================================
+-- File: public/login.php -- {CONTAINS HTML CODE}
+=================================================
+
+<?php
+session_start();
+
+// Database connection
+include '../includes/dbConn.php';
+
+$error_message = '';
+
+// Processes data from the user, linked to form in HTML
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $uname = $_POST['username'];
+    $pword = $_POST['userPassword'];
+
+    if (empty($uname) || empty($pword)) {
+        // Error messages are run in the html section
+        $error_message = "All fields are required!";
+    } else {
+        $sql = "SELECT userID, username, userPassword FROM Users WHERE username = ?";
+
+        // Prevents SQL inection
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $uname);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        // Only runs if the username which exists
+        if (mysqli_num_rows($result) == 1) {
+            $row = mysqli_fetch_assoc($result);
+            $storedPassword = $row["userPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would  solely start from password_verify
+            if (password_verify($pword, $storedPassword)) {
+                $_SESSION['userID'] = $row['userID'];
+                header("Location: ../public/browse.php");
+                exit();
+            } else if ($pword === $storedPassword) { // For legacy plain-text passwords
+                $_SESSION['userID'] = $row['userID'];
+                header("Location: ../public/browse.php");
+                exit();
+            } else {
+                $error_message = "Incorrect password.";
+            }
+        } else {
+            $error_message = "Username does not exist.";
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+mysqli_close($conn);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <!-- Submission form for details -->
+        <form method="POST" action="login.php">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="userPassword">Password</label>
+            <input type="password" id="userPassword" name="userPassword" required>
+
+            <input type="submit" value="Log in">
+        </form>
+        <?php
+            if ($error_message) {
+                echo "<p class='error'>$error_message</p>";
+            }
+        ?>
+    </div>
+</body>
+</html>
+
+==================================================
+-- File: public/browse.php -- {CONTAINS HTML CODE}
+==================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';      // Includes the database connection file
+include '../includes/authUser.php';    // Includes user authentication file
+
+// Fetch all filter options from database
+$cuisines = mysqli_query($conn, "SELECT * FROM Cuisine");                     // Gets all cuisine types
+$dietaryPreferences = mysqli_query($conn, "SELECT * FROM DietaryPreference"); // Gets all dietary preferences
+
+// Initialize filter variables from user input
+$searchTerm = $_POST['search'] ?? ''; // Gets search term from POST or sets empty string
+$selectedCuisine = $_GET['cuisine'] ?? 0; // Gets selected cuisine from GET or sets to 0
+$selectedDiet = $_GET['dietary'] ?? 0; // Gets selected diet from GET or sets to 0
+
+// Checks for predefined query buttons
+$buttonQuery = $_GET['query'] ?? ''; // Gets which predefined query button was clicked
+
+// Handles predefined queries (special result sets)
+$specialResults = null;  // Will hold results if a predefined query is selected
+
+if ($buttonQuery === 'topRated') {
+    // Query for top 5 highest rated restaurants with their average ratings
+    $specialResults = mysqli_query($conn, "
+        SELECT 
+            r.name AS restaurant_name, 
+            c.name AS cuisine_type, 
+            AVG(rev.rating) AS average_rating
+        FROM 
+            Restaurant r
+        JOIN 
+            RestaurantCuisine rc ON r.restaurantID = rc.restaurantID
+        JOIN 
+            Cuisine c ON rc.cuisineID = c.cuisineID
+        LEFT JOIN 
+            Reviews rev ON r.restaurantID = rev.restaurantID
+        GROUP BY 
+            r.restaurantID, c.name
+        ORDER BY 
+            average_rating DESC
+        LIMIT 5
+    ");
+} elseif ($buttonQuery === 'popularDishes') {
+    // Query for most popular dishes grouped by dietary preferences
+    $specialResults = mysqli_query($conn, "
+        SELECT 
+            d.name AS dish_name, 
+            dp.name AS dietary_preference,
+            COUNT(fd.userID) AS favorite_count,
+            r.name AS restaurant_name
+        FROM 
+            Dish d
+        JOIN 
+            Restaurant r ON d.restaurantID = r.restaurantID
+        JOIN 
+            FavouriteDish fd ON d.dishID = fd.dishID
+        JOIN 
+            FavouriteDiet fdp ON fd.userID = fdp.userID
+        JOIN 
+            DietaryPreference dp ON fdp.dietID = dp.dietID
+        WHERE 
+            d.isAvailable = 1
+        GROUP BY 
+            d.dishID, dp.dietID
+        ORDER BY 
+            favorite_count DESC
+        LIMIT 10
+    ");
+} elseif ($buttonQuery === 'diverseRestaurants') {
+    // Query for most diverse restaurants (by cuisine, diet, and dish count)
+    $specialResults = mysqli_query($conn, "
+        SELECT 
+            r.name AS restaurant_name,
+            COUNT(DISTINCT rc.cuisineID) AS cuisine_count,
+            COUNT(DISTINCT rd.dietID) AS diet_count,
+            COUNT(DISTINCT d.dishID) AS dish_count
+        FROM 
+            Restaurant r
+        LEFT JOIN 
+            RestaurantCuisine rc ON r.restaurantID = rc.restaurantID
+        LEFT JOIN 
+            RestaurantDietary rd ON r.restaurantID = rd.restaurantID
+        LEFT JOIN 
+            Dish d ON r.restaurantID = d.restaurantID
+        GROUP BY 
+            r.restaurantID
+        ORDER BY 
+            (COUNT(DISTINCT rc.cuisineID) + COUNT(DISTINCT rd.dietID)) DESC,
+            COUNT(DISTINCT d.dishID) DESC
+        LIMIT 10
+    ");
+}
+
+// Normal search filter logic (when not using predefined queries)
+$where = []; // Array that holds WHERE conditions
+$join = ''; // String that holds JOIN clauses
+
+// Builds conditions based on user input
+if (!empty($searchTerm)) {
+    $where[] = "r.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'";
+}
+if ($selectedCuisine > 0) {
+    $join .= " JOIN RestaurantCuisine rc ON r.restaurantID = rc.restaurantID";
+    $where[] = "rc.cuisineID = " . (int)$selectedCuisine;
+}
+if ($selectedDiet > 0) {
+    $join .= " JOIN RestaurantDietary rd ON r.restaurantID = rd.restaurantID";
+    $where[] = "rd.dietID = " . (int)$selectedDiet;
+}
+
+// Builds final query
+$query = "SELECT DISTINCT r.* FROM Restaurant r $join";
+if (!empty($where)) {
+    $query .= " WHERE " . implode(' AND ', $where);
+}
+
+// Executes query
+$restaurants = mysqli_query($conn, $query);
+if (!$restaurants) {
+    die("Query failed: " . mysqli_error($conn)); // Shows error if failure
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse Restaurants</title>
+    <style> contains css code </style>
+</head>
+<body>
+
+<div class="profile-icon"><a href="usprofile.php"><img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile"></a></div>
+
+<!-- SEARCH BAR SECTION -->
+<div class="search-bar">
+    <!-- Form uses POST method to submit search term -->
+    <form method="POST">
+        <!-- Search input field with preserved value after submission -->
+        <input type="text" name="search" value="<?= htmlspecialchars($searchTerm) ?>" 
+               placeholder="Search Restaurants..." style="width: 60%;">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<!-- FILTER OPTIONS SECTION -->
+<div class="filter-bar">
+    <!-- Form uses GET method so filters appear in URL -->
+    <form method="GET">
+        <!-- Cuisine dropdown filter -->
+        <label>Cuisine:</label>
+        <select name="cuisine">
+            <option value="">All</option>  <!-- Default "All" option -->
+            <?php 
+            // Reset result pointer to beginning for re-use
+            mysqli_data_seek($cuisines, 0);  
+            // Loop through all cuisine options from database
+            while ($cuisine = mysqli_fetch_assoc($cuisines)): ?>
+                <!-- Each option shows cuisine name, with selected attribute if active -->
+                <option value="<?= $cuisine['cuisineID'] ?>" 
+                    <?= ($selectedCuisine == $cuisine['cuisineID']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($cuisine['name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
+        
+        <!-- Dietary preferences dropdown filter -->
+        <label>Dietary:</label>
+        <select name="dietary">
+            <option value="">All</option>
+            <?php 
+            // Reset pointer for dietary preferences
+            mysqli_data_seek($dietaryPreferences, 0);  
+            while ($diet = mysqli_fetch_assoc($dietaryPreferences)): ?>
+                <option value="<?= $diet['dietID'] ?>" 
+                    <?= ($selectedDiet == $diet['dietID']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($diet['name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
+        
+        <!-- Form submission buttons -->
+        <button type="submit">Filter</button>  <!-- Applies selected filters -->
+        <!-- Reset button clears filters by reloading page without parameters -->
+        <button type="button" onclick="window.location.href='browse.php'">Reset</button>
+    </form>
+</div>
+
+<!-- PRE-DEFINED QUERY BUTTONS -->
+<div class="buttons-bar">
+    <!-- Each button triggers a different special query by adding URL parameter -->
+    <!-- 1. Shows top rated restaurants -->
+    <button onclick="window.location.href='browse.php?query=topRated'">
+        1. Top 5 Highest Rated Restaurants
+    </button>
+    
+    <!-- 2. Shows popular dishes grouped by dietary preferences -->
+    <button onclick="window.location.href='browse.php?query=popularDishes'">
+        2. Most Popular Dishes by Dietary Preferences
+    </button>
+    
+    <!-- 3. Shows restaurants with most variety -->
+    <button onclick="window.location.href='browse.php?query=diverseRestaurants'">
+        3. Most Diverse Restaurants
+    </button>
+</div>
+
+<!-- SPECIAL RESULTS DISPLAY (for predefined queries) -->
+<?php if ($specialResults): ?>  <!-- Only shows if a special query was run -->
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <!-- Dynamically creates table headers based on query columns -->
+                    <?php while ($col = mysqli_fetch_field($specialResults)) 
+                        echo "<th>{$col->name}</th>"; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loops through each row of results -->
+                <?php while ($row = mysqli_fetch_assoc($specialResults)): ?>
+                    <tr>
+                        <!-- Displays each value in the row -->
+                        <?php foreach ($row as $value): ?>
+                            <td><?= htmlspecialchars($value) ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
+
+<!-- MAIN RESTAURANT CARDS DISPLAY -->
+<div class="container">
+<?php if (mysqli_num_rows($restaurants) > 0): ?>  <!-- Check if any restaurants found -->
+    <?php while ($restaurant = mysqli_fetch_assoc($restaurants)): ?>
+        <?php
+        // Get additional info for each restaurant:
+        // 1. Query for all cuisine types this restaurant offers
+        $cuisineQuery = mysqli_query($conn, 
+            "SELECT c.name FROM Cuisine c 
+             JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID 
+             WHERE rc.restaurantID = {$restaurant['restaurantID']}");
+        
+        // 2. Query for all dietary options this restaurant accommodates
+        $dietQuery = mysqli_query($conn, 
+            "SELECT d.name FROM DietaryPreference d 
+             JOIN RestaurantDietary rd ON d.dietID = rd.dietID 
+             WHERE rd.restaurantID = {$restaurant['restaurantID']}");
+        ?>
+        
+        <!-- Individual restaurant card -->
+        <div class="card">
+            <!-- Clickable card that links to restaurant detail page -->
+            <a href="restaurant.php?restaurantID=<?= $restaurant['restaurantID'] ?>" 
+               style="text-decoration:none; color:inherit;">
+               
+                <h2><?= htmlspecialchars($restaurant['name']) ?></h2>
+                <p><strong>Location:</strong> <?= htmlspecialchars($restaurant['location']) ?></p>
+                <p><strong>Status:</strong> <?= htmlspecialchars($restaurant['operationStatus']) ?></p>
+                
+                <!-- Display dietary tags if available -->
+                <?php if (mysqli_num_rows($dietQuery) > 0): ?>
+                    <div class="diet-tags">
+                        <?php while ($diet = mysqli_fetch_assoc($dietQuery)): ?>
+                            <span class="diet-tag"><?= htmlspecialchars($diet['name']) ?></span>
+                        <?php endwhile; ?>
+                    </div>
+                <?php endif; ?>
+            </a>
+        </div>
+    <?php endwhile; ?>
+<?php else: ?>  <!-- No restaurants found message -->
+    <div class="no-results">
+        <p>No restaurants found matching your criteria.</p>
+        <!-- Button to reset all filters -->
+        <a href="?"><button>Show All Restaurants</button></a>
+    </div>
+<?php endif; ?>
+</div>
+
+=====================================================
+-- File: public/usProfile.php -- {CONTAINS HTML CODE}
+=====================================================
+
+<?php
+// Database and authentication connection
+include '../includes/dbConn.php';
+include '../includes/authUser.php';
+
+$userID = $_SESSION['userID'];
+
+// Gets user information
+$stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
+// Binds userID as an integer to the query
+$stmt->bind_param("i", $userID);
+// Executes the statement
+$stmt->execute();
+// Gets the result set
+$result = $stmt->get_result();
+// Fetch the user's information as array
+$user = $result->fetch_assoc();
+$stmt->close();
+
+// Shows error if user not found
+if (!$user) {
+    echo "No user data found for userID: $userID";
+    exit();
+}
+
+// Stores user info in variables for later use
+$firstName = $user['firstName'];
+$lastName = $user['lastName'];
+$email = $user['email'];
+$username = $user['username'];
+
+// Gets number of favorite restaurants
+$favSql = "SELECT COUNT(*) FROM FavouriteRestaurant WHERE userID = ?";
+$favStmt = $conn->prepare($favSql);
+$favStmt->bind_param("i", $userID);
+$favStmt->execute();
+$favStmt->bind_result($favoriteCount);
+$favStmt->fetch();
+$favStmt->close();
+
+
+// Get user reviews 
+$reviewSql = "
+    SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
+    FROM Reviews r 
+    JOIN Restaurant res ON r.restaurantID = res.restaurantID 
+    WHERE r.userID = ?";
+$reviewStmt = $conn->prepare($reviewSql);
+$reviewStmt->bind_param("i", $userID);
+$reviewStmt->execute();
+$reviewResult = $reviewStmt->get_result();
+
+// Gets user's dietary preferences
+$dietSql = "
+    SELECT d.name, d.description 
+    FROM FavouriteDiet fd 
+    JOIN DietaryPreference d ON fd.dietID = d.dietID 
+    WHERE fd.userID = ?";
+$dietStmt = $conn->prepare($dietSql);
+$dietStmt->bind_param("i", $userID);
+$dietStmt->execute();
+$dietResult = $dietStmt->get_result();
+
+// Gets favorite dishes with restaurant info
+$favCombinedSql = "
+    SELECT d.name AS dishName, r.name AS restaurantName 
+    FROM FavouriteDish fd
+    JOIN Dish d ON fd.dishID = d.dishID
+    JOIN Restaurant r ON d.restaurantID = r.restaurantID
+    WHERE fd.userID = ?";
+$favCombinedStmt = $conn->prepare($favCombinedSql);
+$favCombinedStmt->bind_param("i", $userID);
+$favCombinedStmt->execute();
+$favCombinedResult = $favCombinedStmt->get_result();
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Profile</title>
+    <style> contains css code </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Profile Picture -->
+        <div class="profile-pic">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture">
+        </div>
+
+        <!-- User Info -->
+        <h2><?php echo htmlspecialchars($firstName); ?>'s Profile</h2>
+        <div class="info">
+            <p><strong>Full Name:</strong> <?php echo htmlspecialchars($firstName . " " . $lastName); ?></p>
+            <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
+            <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
+            
+            <!-- Dietary Preferences -->
+             <!-- if there are any then prints them -->
+            <?php if ($dietResult->num_rows > 0): ?>
+                <p><strong>Dietary Preferences:</strong></p>
+                <ul>
+                    <?php while ($diet = $dietResult->fetch_assoc()): ?> <!-- Loop through each dietary preference -->
+                       <li>
+                          <strong><?php echo htmlspecialchars($diet['name']); ?></strong>
+                          <?php if ($diet['description']): ?>
+                            - <?php echo htmlspecialchars($diet['description']); ?>
+                          <?php endif; ?>
+                       </li>
+                    <?php endwhile; ?>
+                </ul>
+            <!-- If none prints this -->    
+            <?php else: ?>
+                <p><strong>Dietary Preferences:</strong> You haven't selected any.</p>
+            <?php endif; ?>      
+    
+        </div>
+
+        <!-- Favorite Dishes Table -->
+        <div class="reviews">
+            <h3>Your Favorite Dishes & Restaurants</h3>
+            <?php if ($favCombinedResult->num_rows > 0): ?>
+                <table>
+                    <tr>
+                        <th>Dish</th>
+                        <th>Restaurant</th>
+                    </tr>
+                    <?php while ($row = $favCombinedResult->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['dishName']); ?></td>
+                        <td><?php echo htmlspecialchars($row['restaurantName']); ?></td>
+                    </tr>
+                    <?php endwhile; ?>
+                </table>
+            <?php else: ?>
+                <p>You haven't favorited any dishes yet.</p>
+            <?php endif; ?>
+
+            <!-- User's Reviews -->
+            <h3>Your Reviews</h3>
+            <?php 
+            if ($reviewResult->num_rows > 0) {
+                while ($row = $reviewResult->fetch_assoc()) {
+                    echo "<div class='review-box'>";
+                    echo "<strong>Restaurant:</strong> " . htmlspecialchars($row['restaurantName']) . "<br>";
+                    echo "<strong>Rating:</strong> " . htmlspecialchars($row['rating']) . "/5<br>";
+                    echo "<strong>Date:</strong> " . htmlspecialchars($row['datePosted']) . "<br>";
+                    echo "<strong>Comment:</strong> " . nl2br(htmlspecialchars($row['commentLeft']));
+                    echo "</div>";
+                }
+            } else {
+                echo "<p>You haven’t written any reviews yet.</p>";
+            }
+            ?>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div style="text-align: center;">
+            <a href="../public/browse.php" class="back-btn">← Back to Browse</a>
+            <a href="../public/index.php" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+</body>
+</html>
+
+======================================================
+-- File: public/restaurant.php -- {CONTAINS HTML CODE}
+======================================================
+
+<?php
+// Database and authentication connection
+include '../includes/dbConn.php';
+include '../includes/authUser.php';
+
+// -----CODE TO GET THE RESTAURANT ID-----
+
+// Using "GET", checks if restaurantId is given in the URL of page
+if (isset($_GET['restaurantID'])) {
+    $restaurantID = $_GET['restaurantID'];
+
+    // SQL statement to get the restaurent with given ID
+    $query = "SELECT * FROM Restaurant WHERE restaurantID = ?";
+    $stmt = $conn->prepare($query);
+
+    // Bind the restaurant ID as an integer to the SQL query (tells the database what the parameters are)
+    $stmt->bind_param("i", $restaurantID);
+    // Execute the query
+    $stmt->execute();
+    // Get the result of the query
+    $result = $stmt->get_result();
+    // Fetches the restaurant data as an array
+    $restaurant = $result->fetch_assoc();
+ 
+    // If no restaurant is found, prints error message and exits
+    if (!$restaurant) {
+        echo "Restaurant not found.";
+        exit;
+    }
+// If no restaurantID is provided in the URL, prints error message and exits
+} else {
+    echo "No restaurant ID provided.";
+    exit();
+}
+
+// Gets the currently logged-in user's ID from the session
+$userID = $_SESSION['userID'];
+
+// -----CODE TO FETCH THE RESTAURANT'S CUISINES-----
+
+// SQL query to get cuisine names linked to the current restaurant
+$cuisineQuery = "
+    SELECT c.name 
+    FROM Cuisine c 
+    JOIN RestaurantCuisine rc ON c.cuisineID = rc.cuisineID
+    WHERE rc.restaurantID = ?
+";
+$cuisineStmt = $conn->prepare($cuisineQuery);
+$cuisineStmt->bind_param("i", $restaurantID);
+$cuisineStmt->execute();
+$cuisineResult = $cuisineStmt->get_result();
+
+// Initialises array to store cuisine names
+$cuisines = [];
+while ($cuisine = $cuisineResult->fetch_assoc()) {
+    $cuisines[] = $cuisine['name'];
+}
+
+// If restaurant is not found this time, redirects to browse page
+if (!$restaurant) {
+    header("Location: browse.php");
+    exit();
+}
+
+// -----CODE TO GET AVERAGE RATING OF THE RESTAURANT FROM REVIEWS TABLE-----
+
+$ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?"; 
+$ratingStmt = $conn->prepare($ratingQuery);
+$ratingStmt->bind_param("i", $restaurantID);
+$ratingStmt->execute();
+$ratingResult = $ratingStmt->get_result();
+$ratingData = $ratingResult->fetch_assoc();
+
+$averageRating = $ratingData['average_rating']; // Saves average rating to a variable
+
+
+$stmt->close(); // Close the statement 
+?>
+
+<!DOCTYPE html> 
+<!--HTML-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($restaurant['name']); ?> - Details</title>
+
+    <style> contains css code </style>
+</head>
+
+<body>
+<!-- Header with restaurant name -->
+<div class="header">
+    <h1><?php echo htmlspecialchars($restaurant['name']); ?></h1>
+</div>
+
+<!-- Main content -->
+<div class="container">
+    <div class="restaurant-info">
+        <p><span class="highlight">Location:</span> <?php echo htmlspecialchars($restaurant['location']); ?></p> <!--Shows location-->
+        <p><span class="highlight">Operation Status:</span> <?php echo htmlspecialchars($restaurant['operationStatus']); ?></p> <!--Shows operation status-->
+        
+        <!-- List of cuisines -->
+        <p><span class="highlight">Cuisines:</span>
+            <?php echo implode(", ", $cuisines); // prints all the cuisines of the restaurant
+            ?> 
+        </p>
+        <!-- Shows average rating -->
+        <p><strong>Average Rating:</strong>
+            <?php 
+            echo $averageRating !== null // if avg rating is not null, prints it out (nearest value)
+                ? number_format($averageRating, 1) . " ⭐" 
+                : "Not Rated Yet ⭐"; //else, it prints "not rated yet"
+            ?>
+        </p>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="btn-container">
+        <a href="dishes.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Dishes</a>
+        <a href="review.php?restaurantID=<?php echo $restaurant['restaurantID']; ?>" class="btn">View Reviews</a>
+    </div>
+</div>
+
+<!-- Back to Browse page -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="browse.php" 
+       style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
+        ← Back to Browse Page
+    </a>
+</div>
+</body>
+</html>
+
+<?php
+// Closes DB connection
+ $conn->close();
+?>
+
+==================================================
+-- File: public/dishes.php -- {CONTAINS HTML CODE}
+==================================================
+
+<?php
+// Database and authentication connection
+include '../includes/dbConn.php';
+include '../includes/authUser.php';
+
+// Get the logged-in user's ID from session
+$userID = $_SESSION['userID'];
+
+//-----CODE TO HANDLE HEART ICON TOGGLE-----
+// When icon is clicked for like/unlike
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggleLike'], $_POST['dishID'])) {
+    $dishID = (int)$_POST['dishID']; // Ensures dishID is an integer
+
+    // Checks if user already liked the dish
+    // SQL query to check if the dish is a fav for the user
+    $checkSql = "SELECT * FROM FavouriteDish WHERE userID = ? AND dishID = ?"; 
+    $checkStmt = $conn->prepare($checkSql);
+    // Binds userID and dishID as integers to the query
+    $checkStmt->bind_param("ii", $userID, $dishID); 
+    // Executes the prepared SQL statement
+    $checkStmt->execute();
+    // Gets the results 
+    $checkResult = $checkStmt->get_result();
+
+    if ($checkResult->num_rows > 0) {
+        // Unlike it from Favourite Dish table
+        $delStmt = $conn->prepare("DELETE FROM FavouriteDish WHERE userID = ? AND dishID = ?");
+        $delStmt->bind_param("ii", $userID, $dishID);
+        $delStmt->execute();
+    } else {
+        // If not liked, add it to Favourite Dish table
+        $insStmt = $conn->prepare("INSERT INTO FavouriteDish (userID, dishID) VALUES (?, ?)");
+        $insStmt->bind_param("ii", $userID, $dishID);
+        $insStmt->execute();
+    }
+
+    exit();  // Stop further output
+    
+}
+
+// Get restaurantID and optional diet filter from the URL
+$restaurantID = isset($_GET['restaurantID']) ? (int)$_GET['restaurantID'] : null;
+$filterDietID = isset($_GET['diet']) ? (int)$_GET['diet'] : null;
+// If no restaurant, print error message and exits
+if (!$restaurantID) {
+    echo "No restaurant selected.";
+    exit;
+}
+
+//-----CODE TO GET DIETARY PREFERENCES-----
+$dietQuery = "SELECT dietID, name FROM DietaryPreference";
+$dietResult = mysqli_query($conn, $dietQuery);
+
+//-----CODE TO GET DISHES WITH FILTER-----
+// SQL query to get dishes from specific restaurant with the diet filter
+$dishQuery = "SELECT d.*, dp.name AS dietName 
+              FROM Dish d 
+              LEFT JOIN DietaryPreference dp ON d.DietID = dp.dietID 
+              WHERE d.restaurantID = ?";
+
+$params = [$restaurantID]; // Parameters for binding
+$types = "i"; // Type string 
+
+if ($filterDietID) {
+    // Add dietary preference filter if selected
+    $dishQuery .= " AND d.DietID = ?";
+    $params[] = $filterDietID;
+    $types .= "i";
+}
+
+// Prepare and execute the dish query
+$stmt = mysqli_prepare($conn, $dishQuery);
+mysqli_stmt_bind_param($stmt, $types, ...$params);
+mysqli_stmt_execute($stmt);
+$dishResult = mysqli_stmt_get_result($stmt);
+
+// Get all the liked dishes by user
+$liked = [];
+$likeQuery = "SELECT dishID FROM FavouriteDish WHERE userID = ?";
+$likeStmt = mysqli_prepare($conn, $likeQuery);
+mysqli_stmt_bind_param($likeStmt, "i", $userID);
+mysqli_stmt_execute($likeStmt);
+$likeResult = mysqli_stmt_get_result($likeStmt);
+// Stores all the liked dish IDs in an array for later use
+while ($row = mysqli_fetch_assoc($likeResult)) {
+    $liked[] = $row['dishID'];
+}
+?>
+
+<!DOCTYPE html> <!--HTML-->
+<html>
+<head>
+    <style> contains css code </style>
+</head>
+<body>
+
+<header>
+    Dishes Available
+</header>
+
+<!-- Filter Form for Dietary Preferences -->
+<form method="GET">
+    <!-- Keep the selected restaurant ID -->
+    <input type="hidden" name="restaurantID" value="<?= htmlspecialchars($restaurantID) ?>">
+    <!-- Dropdown filter for dietary preferences -->
+    <label><strong>Filter by Dietary Preference:</strong></label>
+    <select name="diet" onchange="this.form.submit()">
+        <option value="">All</option>
+        <!-- Goes through each diet from the database -->
+        <?php while ($diet = mysqli_fetch_assoc($dietResult)) : ?>
+            <!-- Shows diet name as an option -->
+            <!-- If this diet is selected, keep it selected -->
+            <option value="<?= $diet['dietID'] ?>" <?= ($filterDietID == $diet['dietID']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($diet['name']) ?>
+            </option>
+        <?php endwhile; ?>
+    </select>
+</form>
+
+<!-- Dishes Display -->
+<div class="dish-grid">
+    <?php while ($dish = mysqli_fetch_assoc($dishResult)) : ?>
+        <div class="dish-card">
+            <h3><?= htmlspecialchars($dish['name']) ?> - $<?= number_format($dish['price'], 2) ?></h3>
+            <p><?= htmlspecialchars($dish['description']) ?></p>
+            <p><strong>Diet:</strong> <?= htmlspecialchars($dish['dietName'] ?? 'None') ?></p>
+            <!-- Heart icon for liking/unliking dishes -->
+            <span class="heart <?= in_array($dish['dishID'], $liked) ? 'liked' : '' ?>"
+                  title="Click to like/unlike"
+                  onclick="toggleLike(<?= $dish['dishID'] ?>, this)">❤️</span>
+        </div>
+    <?php endwhile; ?>
+</div>
+
+<!-- Back to restaurant page button -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="restaurant.php?restaurantID=<?= $restaurantID ?>"
+    style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
+    ← Back to Restaurant Page
+    </a>
+</div>
+
+<!-- JavaScript to handle heart icon toggle -->
+<script>
+function toggleLike(dishID, element) {
+    element.style.pointerEvents = "none"; // prevents double clicks
+
+    // Creates a new AJAX request
+    const xhr = new XMLHttpRequest();
+    // Sets up the request to send data to dishes.php using POST method
+    xhr.open("POST", "dishes.php", true);
+    // Tells the server we're sending form data
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    // When we get a response
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Toggles heart color (like/unlike)
+            element.classList.toggle("liked");
+        } else {
+            // Error message
+            alert("Something went wrong!");
+        }
+        // Allows clicking again
+        element.style.pointerEvents = "auto";
+    };
+    // Sends dishID to PHP for toggling like
+    xhr.send("toggleLike=1&dishID=" + dishID);
+}
+</script>
+
+</body>
+</html>
+
+==================================================
+-- File: public/review.php -- {CONTAINS HTML CODE}
+==================================================
+
+<?php
+// Database and authentication connection
+include '../includes/dbConn.php';
+include '../includes/authUser.php';
+
+// Gets restaurant ID from the URL
+$restaurantID = $_GET['restaurantID'] ?? null;
+
+// If no restaurant ID is given, prints error message and exits
+if (!$restaurantID) {
+    echo "No restaurant selected.";
+    exit();
+}
+
+// Get restaurant name from ID
+$nameQuery = "SELECT name FROM Restaurant WHERE restaurantID = ?"; 
+$stmt = $conn->prepare($nameQuery);
+// Bind the restaurant ID as an integer to the SQL query (tells the database what the parameters are)
+$stmt->bind_param("i", $restaurantID);
+// Execute the query
+$stmt->execute();
+// Get the result of the query and stores it in the variable "$restaurantName"
+$stmt->bind_result($restaurantName);
+// Fetches the data 
+$stmt->fetch();
+$stmt->close();
+
+if (!$restaurantName) {
+    echo "Restaurant not found.";
+    exit();
+}
+
+// Gets the user ID from session
+$userID = $_SESSION['userID'] ?? null;
+
+// If the review form is submitted and user is logged in
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $userID) {
+    $rating = $_POST['rating']; // Gets rating (form input)
+    $comment = trim($_POST['comment']); // Gets reviews
+
+    // Only if both rating and comment are filled, the data is inserted into reviews table 
+    if ($rating && $comment) {
+        $insertQuery = "INSERT INTO Reviews (userID, restaurantID, rating, commentLeft, datePosted) 
+                        VALUES (?, ?, ?, ?, CURDATE())";
+        $stmt = $conn->prepare($insertQuery);
+        $stmt->bind_param("iiis", $userID, $restaurantID, $rating, $comment);
+        $stmt->execute();
+        $stmt->close();
+
+        // Redirects back to the same page after submit
+        header("Location: review.php?restaurantID=$restaurantID");
+        exit();
+    }
+}
+
+// Fetches reviews for the restaurant
+$reviewQuery = "SELECT R.rating, R.commentLeft, R.datePosted, U.username 
+                FROM Reviews R
+                JOIN Users U ON R.userID = U.userID
+                WHERE R.restaurantID = ?
+                ORDER BY R.datePosted DESC";
+
+$stmt = $conn->prepare($reviewQuery);
+$stmt->bind_param("i", $restaurantID);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Reviews</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev2.css">
+</head>
+<body>
+
+<div class="header">
+    Reviews for <?= htmlspecialchars($restaurantName) ?>
+</div>
+<div class="container">
+    <!-- Review Form -->
+    <div class="review-form">
+        <?php if ($userID): ?>
+            <!-- Shows form only if user is logged in -->
+            <form action="" method="POST">
+                <label for="rating">Rating:</label>
+                <select name="rating" id="rating" required>
+                    <option value="">Select</option>
+                    <option value="5">5 - Excellent ⭐</option>
+                    <option value="4">4 - Good ⭐</option>
+                    <option value="3">3 - Okay ⭐</option>
+                    <option value="2">2 - Bad ⭐</option>
+                    <option value="1">1 - Terrible ⭐</option>
+                </select><br>
+
+                <label for="comment">Leave a comment:</label>
+                <textarea name="comment" id="comment" placeholder="Write your thoughts..." required></textarea>
+
+                <input type="submit" value="Submit Review">
+            </form>
+        <?php else: ?>
+            <!-- Ask user to log in if not logged in -->
+            <p><strong><a href="../public/login.php">Login</a></strong> to submit a review.</p>
+        <?php endif; ?>
+    </div>
+
+    <hr>
+
+    <!-- Shows Reviews -->
+    <!-- If there are records in the reviews table, then the code will run and it will fetch each review -->
+    <?php if ($result->num_rows > 0): ?> 
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <div class="review-box">
+                <div class="user"><?= htmlspecialchars($row['username']) ?></div>
+                <div class="rating">Rating: <?= $row['rating'] ?> ⭐</div>
+                <div class="comment"><?= nl2br(htmlspecialchars($row['commentLeft'])) ?></div>
+                <div class="date"><?= $row['datePosted'] ?></div>
+            </div>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <!-- If no reviews found -->
+        <div class="no-reviews">No reviews yet. Be the first to write one!</div>
+    <?php endif; ?>
+</div>
+
+<!-- Back button to restaurant page -->
+<div style="margin-top: 30px; text-align: center;">
+    <a href="restaurant.php?restaurantID=<?= $restaurantID ?>"
+    style="padding: 10px 20px; background-color: rgb(76, 175, 80); color: white; text-decoration: none; border-radius: 6px;">
+    ← Back to Restaurant Page
+    </a>
+</div>
+
+</body>
+</html>
+
+<?php
+$stmt->close();
+$conn->close();
+?>
+
+
+FOLDER:ADMIN
+=====================================================
+-- File: admin/adminLogin.php -- {CONTAINS HTML CODE}
+=====================================================
+
+<?php
+session_start();
+
+// Database connection
+include '../includes/dbConn.php';
+
+$error_message = '';
+
+// Processes data from the user, linked to form in HTML
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $uname = $_POST['username'];
+    $pword = $_POST['adminPassword'];
+
+    if (empty($uname) || empty($pword)) {
+        $error_message = "All fields are required!";
+    } else {
+        $sql = "SELECT adminID, username, adminPassword FROM Admins WHERE username = ?";
+
+        // Prevents SQL inection
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "s", $uname);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) == 1) {
+            $row = mysqli_fetch_assoc($result);
+            $storedPassword = $row["adminPassword"]; // This is solely for the prepopulated passwords, for demonstration (as they are not hashed). Otherwise, there would  be no need for this if else loop and it would solely start from password_verify
+            if (password_verify($pword, $storedPassword)) { // For hashed passwords
+                $_SESSION['adminID'] = $row['adminID'];
+                header("Location: ../admin/dashboard.php"); // Move admin to dashboard
+                exit();
+            } else if ($pword === $storedPassword) {
+                $_SESSION['adminID'] = $row['adminID'];
+                header("Location: ../admin/dashboard.php");
+                exit();
+            } else {
+                $error_message = "Incorrect password.";
+            }
+        } else {
+            $error_message = "Username does not exist.";
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+mysqli_close($conn);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev1.css">
+    <style>
+        /* Inherits foodRev1.css's style, but makes some changes to colour */
+        input[type="submit"] { background-color: blue;}
+        input[type="submit"]:hover {background-color: rgb(89, 89, 255);}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Administrator Login</h2>
+        <!-- Data entry fields -->
+        <form method="POST" action="adminLogin.php">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" name="adminPassword" required>
+
+            <input type="submit" value="Log in"> <!-- Submit button -->
+        </form>
+        <?php
+            if ($error_message) {
+                echo "<p class='error'>$error_message</p>"; // Displays error message if set in the php section
+            }
+        ?>
+    </div>
+</body>
+</html>
+
+====================================================
+-- File: admin/dashboard.php -- {CONTAINS HTML CODE}
+====================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+include '../includes/authAdmin.php';
+
+// Counts total users
+$totalUsers = "SELECT COUNT(*) AS usTotal FROM users";
+$resultUsers = mysqli_query($conn, $totalUsers);
+$dataUsers = mysqli_fetch_assoc($resultUsers);
+
+// Counts total restaurants
+$totalRest = "SELECT COUNT(*) AS restTotal FROM restaurant";
+$resultRest = mysqli_query($conn, $totalRest);
+$dataRest = mysqli_fetch_assoc($resultRest);
+
+//Counts total reviews
+$totalRev = "SELECT COUNT(*) AS revTotal FROM Reviews";
+$resultRev = mysqli_query($conn, $totalRev);
+$dataRev = mysqli_fetch_assoc($resultRev);
+
+//Counts total admins
+$totalAdm = "SELECT COUNT(*) AS admTotal FROM Admins";
+$resultAdm = mysqli_query($conn, $totalAdm);
+$dataAdm = mysqli_fetch_assoc($resultAdm);
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+</head>
+<body>
+    <div class="container" style="margin-top: 100px;">
+        <h1>Welcome Administrator!</h1>
+        <!-- An option menu for the admin -->
+        <div class="class-menu">
+            <a href="restaurants.php">Manage Restaurants</a>
+            <a href="reviews.php">Manage Reviews</a>
+            <a href="users.php">Manage Users</a>
+            <a href="settings.php">Settings</a>
+        </div>
+    </div>
+    <div class="stats" style="margin-top: 10vh;">
+        <!-- Displays total users, restaurants, and reviews (kind of like an infograph)-->
+        <div class="stat-card">
+            <h2>
+                <?php echo $dataUsers['usTotal'];?>
+                <p>Total Users</p>
+            </h2>
+        </div>
+        <div class="stat-card">
+            <h2>
+                <?php echo $dataRest['restTotal'];?>
+                <p>Total Restaurants</p>
+            </h2>
+        </div>
+        <div class="stat-card">
+            <h2>
+                <?php echo $dataRev['revTotal'];?>
+                <p>Total Reviews</p>
+            </h2>
+        </div>
+        <div class="stat-card">
+            <h2>
+                <?php echo $dataAdm['admTotal'];?>
+                <p>Total Admins</p>
+            </h2>
+        </div>
+    </div>
+    <!-- Log out button which takes admin back to login page -->
+    <a href="../admin/adminLogin.php" class="logout-button">Logout</a>
+</body>
+</html>
+
+
+======================================================
+-- File: admin/restaurants.php -- {CONTAINS HTML CODE}
+======================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+include '../includes/authAdmin.php';
+
+$allRestaurants = $conn->query("SELECT restaurantID, name FROM Restaurant");
+$restaurantID = $_GET['restaurantID'] ?? null;
+// Views info on a restaurant
+
+if($restaurantID) {
+    $stmt = $conn->prepare("SELECT * FROM Restaurant WHERE restaurantID = ?");
+    $stmt->bind_param("i", $restaurantID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $restaurant = $result->fetch_assoc();
+
+    if (!$restaurant) {
+        echo "Restaurant not found.";
+        exit;
+    }
+
+    // Gets no of reviews
+    $reviewQuery = "SELECT COUNT(*) AS totalReviews, AVG(rating) AS avgRating FROM Reviews WHERE restaurantID = ?";
+    $reviewStmt = $conn->prepare($reviewQuery);
+    $reviewStmt->bind_param("i", $restaurantID);
+    $reviewStmt->execute();
+    $resultReview = $reviewStmt->get_result();
+    $reviewStats = $resultReview->fetch_assoc();
+
+    // Gets average rating from Review table
+    $ratingQuery = "SELECT AVG(rating) AS average_rating FROM Reviews WHERE restaurantID = ?";
+    $ratingStmt = $conn->prepare($ratingQuery);
+    $ratingStmt->bind_param("i", $restaurantID);
+    $ratingStmt->execute();
+    $resultRating = $ratingStmt->get_result();
+    $ratingData = $resultRating->fetch_assoc();
+    $averageRating = $ratingData['average_rating'];
+
+    // Gets no of dishes
+    $dishQuery = "SELECT COUNT(*) AS totalDishes FROM Dish WHERE restaurantID = ?";
+    $dishStmt = $conn->prepare($dishQuery);
+    $dishStmt->bind_param("i", $restaurantID);
+    $dishStmt->execute();
+    $resultDish = $dishStmt->get_result();
+    $dishStats = $resultDish->fetch_assoc();
+
+    // Gets status
+    $statusQuery = "SELECT operationStatus FROM Restaurant WHERE restaurantID = ?";
+    $statusStmt = $conn->prepare($statusQuery);
+    $statusStmt->bind_param("s", $restaurantID);
+    $statusStmt->execute();
+    $resultStatus = $statusStmt->get_result();
+    $statusStats = $resultStatus->fetch_assoc();
+
+    $action = $_GET['action'] ?? '';
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Edits name of restaurant if this 'edit' action is detected
+        if (isset($_POST['edit'])) {
+            $newName = $_POST['name'];
+            $updateStmt = $conn->prepare("UPDATE Restaurant SET name=? WHERE restaurantID=?");
+            $updateStmt->bind_param("si", $newName, $restaurantID);
+            $updateStmt->execute();
+            header("Location: ../admin/restaurants.php?restaurantID=$restaurantID"); // Goes back to original state (refreshes)
+            exit;
+        }
+        // Deletes restaurant if this 'delete' action is detected
+        if (isset($_POST['delete'])) {
+            $deleteStmt = $conn->prepare("DELETE FROM Restaurant WHERE restaurantID=?");
+            $deleteStmt->bind_param("i", $restaurantID);
+            $deleteStmt->execute();
+            header("Location: ../admin/restaurants.php");
+            exit;
+        }
+    }
+}
+?>
+
+<!DOCTYPE  html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Restaurants</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+</head>
+<body>
+    <h1>Manage Restaurants</h1> <!-- Heading at the top of page -->
+    <form method="get" action="../admin/restaurants.php" class="choice"> <!-- drop down selection of restaurants -->
+        <label>Select a Restaurant:</label>
+        <select name="restaurantID" onchange="this.form.submit()">
+            <option disabled selected>Select a restaurant</option>
+            <!-- Displays all restaurants by looping through the database  by using $row as a placeholder/pointer -->
+            <?php while ($row = $allRestaurants->fetch_assoc()): ?>
+                <option value="<?= $row['restaurantID'] ?>" <?= isset($restaurantID) && $restaurantID == $row['restaurantID'] ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($row['name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
+    </form>
+    <!-- if restaurant is selected, displays all the  information in blue fact boxes (similar  to dashboard) -->
+    <?php if (isset($restaurantID)): ?>
+        <div class="container" style="margin-top: 200px; width: 75vw;"> <!-- slightly different style to foodRev3.css -->
+            <h1 style="padding-top: 20px; padding-bottom: 100px;"><?= htmlspecialchars($restaurant['name']) ?></h1> <!-- Displays name fetched from database -->
+            <div class="stats">
+                <div class="stat-card">Total Reviews: <?= $reviewStats['totalReviews'] ?></div>
+                <div class="stat-card">Avg Rating: <?= number_format($reviewStats['avgRating'], 1) ?>/5</div>
+                <div class="stat-card">Total Dishes: <?= $dishStats['totalDishes'] ?></div>
+                <div class="stat-card">Operational Status: <?= $statusStats['operationStatus'] ?></div>
+            </div>
+            <!-- edit form, with a box for changing the name of the restaurant, along with a save (changes) and  delete (restaurant) button -->
+            <form method="post" class="edit-delete-form">
+                <label for="name">Edit Restaurant Name:</label>
+                <input type="text" id="name" name="name" value="<?= htmlspecialchars($restaurant['name']) ?>">
+                <div class="form-buttons">
+                    <button type="submit" name="edit" class="edit-button">Save Changes</button>
+                    <button type="submit" name="delete" class="delete-button" onclick="return confirm('Delete Restaurant?')">Delete Restaurant</button>
+                </div>
+            </form>
+        </div>
+    <?php endif; ?>
+    <div class="back-to-dashboard"> <!-- Return button -->
+        <a href="../admin/dashboard.php">← Back to Dashboard</a> 
+    </div>
+    <?php // Closes the database connection
+    mysqli_close($conn);
+    ?>
+</body>
+</html>
+
+==================================================
+-- File: admin/reviews.php -- {CONTAINS HTML CODE}
+==================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+include '../includes/authAdmin.php';
+
+// Search box
+$searchTerm = $_POST['search'] ?? '';
+$searchSql = $searchTerm ? "WHERE commentLeft LIKE '%$searchTerm%'" : '';
+// Moderate Reviews
+// Delete Review
+
+$allReviews = $conn->query("SELECT reviewID, datePosted, rating, commentLeft FROM Reviews $searchSql");
+$reviewID = $_GET['reviewID'] ?? null;
+
+if($reviewID) {
+    $stmt = $conn->prepare("SELECT * FROM Reviews WHERE reviewID = ?");
+    $stmt->bind_param("i", $reviewID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $review = $result->fetch_assoc();
+    $review1 = $result->fetch_assoc();
+    // Edits name of review
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (isset($_POST['edit'])) {
+            $newComment = $_POST['comment'];
+            $updateStmt = $conn->prepare("UPDATE Reviews SET commentLeft=? WHERE reviewID=?");
+            $updateStmt->bind_param("si", $newComment, $reviewID);
+            $updateStmt->execute();
+            header("Location: ../admin/reviews.php?reviewID=$reviewID");
+            exit;
+        }
+    // Deletes review
+        if (isset($_POST['delete'])) {
+            $deleteStmt = $conn->prepare("DELETE FROM Reviews WHERE reviewID=?");
+            $deleteStmt->bind_param("i", $reviewID);
+            $deleteStmt->execute();
+            header("Location: ../admin/reviews.php"); // Goes back to list
+            exit;
+        }
+    }
+}
+?>
+
+<!DOCTYPE  html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Reviews</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+    <style> contains css code </style>
+</head>
+    <body>
+        <h1>Manage Reviews</h1>
+
+        <form method="post" class="search-bar">
+            <input type="text" name="search" placeholder="Search comment" value="<?= htmlspecialchars($searchTerm) ?>">
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="container">
+            <!-- List of reviews/comments displaying the comments of the users in the review section -->
+            <div class="comments-list">
+                <?php while ($review1 = mysqli_fetch_assoc($allReviews)): ?>
+                    <div class="comment" onclick="window.location='?reviewID=<?= $review1['reviewID'] ?>'"> <!-- so that when the whoole box is clicked takes admin to info / edit section -->
+                        <a href="?reviewID=<?= $review1['reviewID'] ?>" style="text-decoration:none; color:inherit;"> <!-- inherits colour since otherwise it would look like a normal blue link -->
+                            <?= htmlspecialchars($review1['datePosted']) ?><br>
+                            Rating: <?= htmlspecialchars($review1['rating']) ?>/5<br>
+                            <?= htmlspecialchars($review1['commentLeft']) ?>
+                        </a>
+                    </div>
+                <?php endwhile;?>
+            </div>
+
+            <!-- makes sure review is set for the session and not set to null / user has to select a review by clicking it  -->
+            <?php if (isset($review) && $review):?>
+                <div class="edit-box">
+                    <h2>Edit Comment</h2>
+                    <!-- buttons which listen to user's actions andd take him to php section above when activated -->
+                    <form method="post">
+                        <textarea name="comment" rows="5" cols="40"><?= htmlspecialchars($review['commentLeft'] ?? '') ?></textarea>
+                        <br><br>
+                        <button type="submit" name="edit">Save</button>
+                        <button type="submit" name="delete" onclick="return confirm('Delete this comment?')">Delete</button>
+                    </form>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="back-to-dashboard"> <!-- Return button -->
+            <a href="../admin/dashboard.php">← Back to Dashboard</a>
+        </div>
+        <?php
+        // Closes the database connection
+        mysqli_close($conn);
+        ?>
+    </body>
+</html>
+
+===================================================
+-- File: admin/settings.php -- {CONTAINS HTML CODE}
+===================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+include '../includes/authAdmin.php';
+
+// This is to add or remove other admin accounts
+
+// Search box for admins
+$searchTerm = $_POST['search'] ?? '';
+$searchSql = $searchTerm ? "WHERE username LIKE '%$searchTerm%'" : '';
+
+// Gets all admins
+$allAdmins = $conn->query("SELECT adminID, username, adminPassword FROM Admins $searchSql");
+
+// Handles admin account delete
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['deleteAdminID'])) {
+        $deleteID = $_POST['deleteAdminID'];
+        $deleteStmt = $conn->prepare("DELETE FROM Admins WHERE adminID=?");
+        $deleteStmt->bind_param("i", $deleteID);
+        $deleteStmt->execute();
+        header("Location: ../admin/settings.php");
+        exit;
+    }
+
+    // Handles adding admin account
+    if (isset($_POST['add-button'])) {
+        $username = $_POST['username'];
+        $password = $_POST['adminPassword'];
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hashed password generated herre
+        $insertStmt = $conn->prepare("INSERT INTO Admins (username, adminPassword) VALUES (?, ?)");
+        $insertStmt->bind_param("ss", $username, $hashedPassword);
+        $insertStmt->execute();
+        header("Location: ../admin/settings.php");
+        exit;
+    }
+}
+?>
+
+<!DOCTYPE  html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Admins</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+    <style> contains css code </style>
+</head>
+<body>
+    <h1>Set Admin Privileges</h1>
+    <!-- search-bar listens for click of button -->
+    <form method="post" class="search-bar">
+        <input type="text" name="search" placeholder="Search admin" value="<?= htmlspecialchars($searchTerm) ?>">
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="container">
+        <!-- A vertical list of all the users in the db -->
+        <div class="admins-list">
+            <!-- Loops through allAdmins (all the admins, obviously) with $user1 being a temporary variable pointing at each row -->
+            <?php while ($admin = $allAdmins->fetch_assoc()): ?>
+                <!-- All the info per admin is dumped in each own box -->
+                <div class="admin-box">
+                    <div class="admin-info">
+                        <strong>Username: </strong><?= htmlspecialchars($admin['username']); ?><br>
+                        <strong>Password: </strong><?= htmlspecialchars($admin['adminPassword']); ?>
+                    </div>
+                    <form method="post" class="delete-form">
+                        <input type="hidden" name="deleteAdminID" value="<?= $admin['adminID'] ?>">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            <?php endwhile; ?>
+            
+            <!-- a '+' button which toggles an admin form -->
+            <div class="add-admin-btn" onclick="toggleAddAdminForm()">+</div>
+        </div>
+        <!-- has an id so can be called in the js -->
+        <div class="add-admin-form" id="admin-form-id">
+            <form method="post">
+                <!-- Form for details -->
+                <label>Username:</label><br>
+                <input type="text" name="username" required><br><br>
+                <label>Password:</label><br>
+                <input type="password" name="adminPassword" required><br><br>
+                <button type="submit" name="add-button">Add Admin</button>
+            </form>
+        </div>
+
+        <script>
+            function toggleAddAdminForm() {
+                // Gets details from the form with this id
+                var form = document.getElementById('admin-form-id');
+                form.style.display = form.style.display === 'none' ? 'block' : 'none'; // Toggles visibility of form
+            }
+        </script>
+    </div>
+    <div class="back-to-dashboard">
+        <a href="../admin/dashboard.php">← Back to Dashboard</a> <!-- Return button -->
+    </div>
+    <?php
+    // Closes the database connection
+    mysqli_close($conn);
+    ?>
+</body>
+
+================================================
+-- File: admin/users.php -- {CONTAINS HTML CODE}
+================================================
+
+<?php
+// Database connection
+include '../includes/dbConn.php';
+include '../includes/authAdmin.php';
+
+$searchTerm = $_POST['search'] ?? ''; // Search box for users to enter part of username/name/email
+$searchSql = $searchTerm ? "WHERE firstName LIKE '%$searchTerm%' OR lastName LIKE '%$searchTerm%' OR email LIKE '%$searchTerm%' OR username LIKE '%$searchTerm%'" : '';
+
+// Gets all users
+$allUsers = $conn->query("SELECT userID, firstName, lastName, email, username FROM Users $searchSql");
+
+// Views selected user
+$userID = $_GET['userID'] ?? null; //If is not selected for the time being is defined as null
+$user = null; // Set as null for the time being
+
+if ($userID) {
+
+    // Gets user info
+    $stmt = $conn->prepare("SELECT firstName, lastName, email, username FROM `Users` WHERE userID = ?");
+    $stmt->bind_param("i", $userID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    // Gets user reviews
+    $reviewSql = "
+        SELECT r.commentLeft, r.rating, r.datePosted, res.name AS restaurantName
+        FROM Reviews r 
+        JOIN Restaurant res ON r.restaurantID = res.restaurantID 
+        WHERE r.userID = ?";
+    $reviewStmt = $conn->prepare($reviewSql);
+    $reviewStmt->bind_param("i", $userID);
+    $reviewStmt->execute();
+    $reviewResult = $reviewStmt->get_result();
+
+    // Handles deletion of user
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (isset($_POST['delete-user'])) {
+            $deleteStmt = $conn->prepare("DELETE FROM Users WHERE userID=?");
+            $deleteStmt->bind_param("i", $userID);
+            $deleteStmt->execute();
+            header("Location: ../admin/users.php"); // When finished refreshes
+            exit;
+        }
+    }
+}
+?>
+
+<!DOCTYPE  html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link rel="stylesheet" type="text/css" href="../assets/foodRev3.css">
+    <style>
+        .container {
+            display: flex;
+            gap: 40px;
+            padding: 40px;
+            height: 75vh
+        }
+
+        .users-list {
+            flex: 1; /* List expands to fill extra space */
+            overflow-y: auto;  /* User can scroll using scroll bar if theres alot of info */
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        .user-box {
+            border: 1px solid black;
+            padding: 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            word-wrap: break-word; /* So the words don't overflow over edge of box */
+        }
+
+        .edit-box {
+            flex: 1;
+            border: 1px solid black;
+            padding: 20px; /* Alot of space so that user can edit and not feel overwhelmed */
+            overflow-y: auto; 
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            border-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Users</h1> <!-- Heading -->
+    <!-- Search bar so that admin can find users - links to the php code above ($searchTerm) -->
+    <form method="post" class="search-bar">
+        <input type="text" name="search" placeholder="Search user" value="<?= htmlspecialchars($searchTerm) ?>">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Container with list of users and an editing menu which pops up -->
+    <div class="container">
+
+        <!-- A vertical list of all the users in the db -->
+        <div class="users-list">
+
+            <!-- Loops through allUsers (all the users, obviously) with $user1 being a temporary variable pointing at each row -->
+            <?php while ($user1 = mysqli_fetch_assoc($allUsers)): ?>
+
+                <!-- All the info per user is dumped in each own box -->
+                <div class="user-box" onclick="window.location='?userID=<?= $user1['userID'] ?>'">
+                    <!-- Link to a particular userID so the side editing menu can be activated -->
+                    <a href="?userID=<?= $user1['userID'] ?>" style="text-decoration:none; color:inherit;">
+                        <strong>Full Name: </strong><?php echo htmlspecialchars($user1['firstName'] . " " . $user1['lastName']); ?><br>
+                        <strong>Email: </strong><?php echo htmlspecialchars($user1['email']); ?><br>
+                        <strong>Username: </strong><?php echo htmlspecialchars($user1['username']); ?>
+                    </a>
+                </div>
+            <?php endwhile;?>
+        </div>
+
+        <!-- When a particular user is selected and user is not null, the code below activates the side  menu -->
+        <?php if (isset($user) && $user): ?>
+
+            <!-- edit-box aka the side menu (to see more info on a user and delete them if needed) -->
+            <div class="edit-box">
+        
+                <!-- An 'action' that the user could take is deleting a user through clicking delete-button, which links to an if POST code in the php at the top -->
+                <form method="post">
+                    <button type="submit" class="delete-button" name="delete-user" onclick="return confirm('Delete this user?')">Delete User</button> <!-- Admin has to confirm deletion -->
+                </form>
+
+                <!-- This section shows a selected user's reviews -->
+                <h2>Reviews by user <?=htmlspecialchars($user['firstName']);?> <?=htmlspecialchars($user['lastName']);?></h2>
+                
+                <!-- If there are reviews present for the user and they are not NULL, they are shown -->
+                <?php if ($reviewResult && $reviewResult->num_rows > 0): ?>
+                    <?php while ($rev = $reviewResult->fetch_assoc()): ?>
+                        <br><br><strong>Restaurant:</strong> <?= htmlspecialchars($rev['restaurantName']) ?><br>
+                        <strong>Rating:</strong> <?= htmlspecialchars($rev['rating']) ?>/5<br>
+                        <strong>Date:</strong> <?= htmlspecialchars($rev['datePosted']) ?><br>
+                        <strong>Comment:</strong><i> <?= nl2br(htmlspecialchars($rev['commentLeft'])) ?></i>
+                    <?php endwhile; ?>
+
+                <!-- If there are no reviews, default message is output -->
+                <?php else: ?>
+                    <p>This user hasn't written any reviews.</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    <!-- A return button -->
+    <div class="back-to-dashboard">
+        <a href="../admin/dashboard.php">← Back to Dashboard</a>
+    </div>
+    <?php
+    // Closes the database connection
+    mysqli_close($conn);
+    ?>
+</body>
+</html>
